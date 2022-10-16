@@ -44,16 +44,18 @@ class Chunk {
             for (let z = 0; z < 16; z++) {
                 for (let sy = 0; sy < 16; sy++) {
                     if (!this.subchunks[sy]) continue
-                    for (let y = sy * 16; y < sy * 16 + 16; sy++) {
+                    for (let y = sy * 16; y < sy * 16 + 16; y++) {
+                        if (!this.get(x, y, z)) continue
                         const faces = [
                             !this.get(x, y, z + 1),
-                            !this.get(x + 1, y, z),
+                            !this.get(x + 1, y, z), // todo: fix
                             !this.get(x, y, z - 1),
-                            !this.get(x - 1, y, z),
+                            !this.get(x - 1, y, z), // todo: fix
                             !this.get(x, y + 1, z),
                             !this.get(x, y - 1, z),
                         ]
                         const data = getGeometryData(x, y, z, faces)
+
                         positions.push(...data.positions)
                         normals.push(...data.normals)
                         colors.push(...data.colors)
@@ -75,6 +77,7 @@ class Chunk {
         if (this.mesh) this.dispose()
 
         this.mesh = new Mesh(geometry, Chunk.material)
+        this.mesh.position.set(this.x * 16, 0, this.z * 16)
         Chunk.parentGroup.add(this.mesh)
     }
 

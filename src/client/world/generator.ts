@@ -5,6 +5,8 @@ import { Chunk } from './chunk'
 class TerrainGenerator {
     seed: number
     noise: NoiseFunction2D
+    hilliness = 5
+    minHeight = 20
 
     constructor(seed: number = 69420) {
         this.seed = seed
@@ -17,7 +19,9 @@ class TerrainGenerator {
         for (let i = 0; i < width; i++) {
             const row = []
             for (let j = 0; j < height; j++) {
-                const value = this.noise(originX + i, originZ + j)
+                let value = this.noise((originX + i) / 64, (originZ + j) / 64)
+                value = (value + 1) * this.hilliness
+                value += this.minHeight
                 row.push(value)
             }
             heights.push(row)
