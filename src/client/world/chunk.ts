@@ -20,9 +20,16 @@ class Chunk {
         Chunk.generator.generate(this)
     }
 
+    get(x: number, y: number, z: number) {
+        const sy = Math.floor(y / 16)
+        if (!this.subchunks[sy]) return
+        const index = 16 * 16 * z + 16 * (y % 16) + x
+        return this.subchunks[sy][index]
+    }
+
     set(x: number, y: number, z: number, block: number) {
         const sy = Math.floor(y / 16)
-        if (!this.subchunks[sy]) this.subchunks[sy] = Array(4096).fill(0)
+        this.subchunks[sy] ||= Array(4096).fill(0)
         const index = 16 * 16 * z + 16 * (y % 16) + x
         this.subchunks[sy][index] = block
     }
@@ -38,7 +45,15 @@ class Chunk {
                 for (let sy = 0; sy < 16; sy++) {
                     if (!this.subchunks[sy]) continue
                     for (let y = sy * 16; y < sy * 16 + 16; sy++) {
-                        const data = getGeometryData(x, y, z, Array(6).fill(true))
+                        const faces = [
+                            !this.get(x, y, z + 1),
+                            !this.get(x + 1, y, z),
+                            !this.get(x, y, z - 1),
+                            !this.get(x - 1, y, z),
+                            !this.get(x, y + 1, z),
+                            !this.get(x, y - 1, z),
+                        ]
+                        const data = getGeometryData(x, y, z, faces)
                         positions.push(...data.positions)
                         normals.push(...data.normals)
                         colors.push(...data.colors)

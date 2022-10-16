@@ -35,6 +35,7 @@ class TerrainGenerator {
                     let block = 1
                     const sy = Math.floor(y / 16)
                     const index = 16 * 16 * z + 16 * (y % 16) + x
+                    chunk.subchunks[sy] ||= Array(4096).fill(0)
                     chunk.subchunks[sy][index] = block
                 }
             }
