@@ -24,6 +24,8 @@
         "webpack-merge": "^5.8.0"
     },
     "dependencies": {
-        "express": "^4.17.3"
+        "alea": "^1.0.1",
+        "express": "^4.17.3",
+        "simplex-noise": "^4.0.1"
     }
 }
