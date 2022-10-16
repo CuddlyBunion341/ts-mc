@@ -1,4 +1,5 @@
 import { BufferAttribute, BufferGeometry, Group, Material, Mesh } from 'three'
+import { getGeometryData } from './builder'
 import { TerrainGenerator } from './generator'
 
 class Chunk {
@@ -37,7 +38,7 @@ class Chunk {
                 for (let sy = 0; sy < 16; sy++) {
                     if (!this.subchunks[sy]) continue
                     for (let y = sy * 16; y < sy * 16 + 16; sy++) {
-                        const data = { positions: [0], normals: [0], uvs: [0], colors: [0] } // todo: geometry builder
+                        const data = getGeometryData(x, y, z, Array(6).fill(true))
                         positions.push(...data.positions)
                         normals.push(...data.normals)
                         colors.push(...data.colors)
