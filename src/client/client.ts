@@ -1,8 +1,10 @@
 import { Group, MeshNormalMaterial, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Stats from 'three/examples/jsm/libs/stats.module'
+import { blocks } from './blocks/blocks'
 import { Chunk } from './world/chunk'
 import { Terrain } from './world/terrain'
+console.log(blocks)
 
 const scene = new Scene()
 
@@ -25,7 +27,7 @@ for (let i = 0; i < 20; i++) {
 const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
 camera.position.set(200, 200, 200)
 
-const renderer = new WebGLRenderer()
+const renderer = new WebGLRenderer({ logarithmicDepthBuffer: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setPixelRatio(devicePixelRatio)
 document.body.appendChild(renderer.domElement)
