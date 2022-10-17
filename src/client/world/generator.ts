@@ -6,7 +6,7 @@ class TerrainGenerator {
     seed: number
     noise: NoiseFunction2D
     hilliness = 5
-    minHeight = 20
+    minHeight = 200
 
     constructor(seed: number = 69420) {
         this.seed = seed

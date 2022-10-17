@@ -15,15 +15,15 @@ Chunk.material = material
 
 const terrain = new Terrain()
 
-for (let i = 0; i < 10; i++) {
-    for (let j = 0; j < 10; j++) {
+for (let i = 0; i < 20; i++) {
+    for (let j = 0; j < 20; j++) {
         const chunk = terrain.createChunk(i, j)
-        setTimeout(() => chunk?.build(), 100)
+        requestIdleCallback(() => chunk?.build())
     }
 }
 
 const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-camera.position.set(30, 60, 30)
+camera.position.set(200, 200, 200)
 
 const renderer = new WebGLRenderer()
 renderer.setSize(window.innerWidth, window.innerHeight)

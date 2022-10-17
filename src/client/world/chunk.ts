@@ -21,6 +21,7 @@ class Chunk {
     }
 
     get(x: number, y: number, z: number) {
+        if (x >= 16 || x < 0 || y >= 256 || y < 0 || z >= 16 || z < 0) return 0
         const sy = Math.floor(y / 16)
         if (!this.subchunks[sy]) return
         const index = 16 * 16 * z + 16 * (y % 16) + x
@@ -48,9 +49,9 @@ class Chunk {
                         if (!this.get(x, y, z)) continue
                         const faces = [
                             !this.get(x, y, z + 1),
-                            !this.get(x + 1, y, z), // todo: fix
+                            !this.get(x + 1, y, z),
                             !this.get(x, y, z - 1),
-                            !this.get(x - 1, y, z), // todo: fix
+                            !this.get(x - 1, y, z),
                             !this.get(x, y + 1, z),
                             !this.get(x, y - 1, z),
                         ]
