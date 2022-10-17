@@ -1,13 +1,11 @@
-import express from 'express'
-import http from 'http'
-import path from 'path'
+const express = require('express')
+const http = require('http')
+const path = require('path')
 
 const port = 3000
 
 class App {
-    private server: http.Server
-    private port: number
-    constructor(port: number) {
+    constructor(port) {
         this.port = port
         const app = express()
         app.use(express.static(path.join(__dirname, '../client')))

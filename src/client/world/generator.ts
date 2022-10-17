@@ -9,7 +9,7 @@ class TerrainGenerator {
     hilliness = 10
     spread = 64
     minHeight = 60
-    seaLevel = 70
+    seaLevel = 65
 
     constructor(seed: number = 69420) {
         this.seed = seed
