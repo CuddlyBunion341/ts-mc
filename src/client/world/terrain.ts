@@ -22,14 +22,14 @@ class Terrain {
         return this.chunks.get(Terrain.key(x, z))
     }
 
-    setBlock(x: number, y: number, z: number, block: number) {
+    setBlock(x: number, y: number, z: number, block: number, update: boolean) {
         const chunkX = Math.floor(x / 16)
         const chunkZ = Math.floor(z / 16)
         const chunk = this.getChunk(chunkX, chunkZ)
         if (chunk?.get(x % 16, y, z % 16) != block) {
-            chunk?.set(x % 16, y, z % 16, block)
-            chunk?.build()
-            return true
+            if (!update) chunk?.set(x % 16, y, z % 16, block)
+            else chunk?.update(x % 16, y, z % 16, block)
+            return chunk
         }
     }
 

@@ -50,7 +50,7 @@ renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setPixelRatio(devicePixelRatio)
 document.body.appendChild(renderer.domElement)
 
-const player = new PlayerController(terrain, camera)
+const player = new PlayerController(camera, terrain, chunkGroup)
 document.addEventListener('keydown', (e) => player.onKeyDown(e))
 document.addEventListener('mousedown', (e) => player.onMouseDown(e))
 document.addEventListener('mouseup', (e) => player.onMouseUp(e))

@@ -44,6 +44,16 @@ class Chunk {
         this.subchunks[sy][index] = block
     }
 
+    update(x: number, y: number, z: number, block: number) {
+        if (this.get(x, y, z) == block) return
+        this.set(x, y, z, block)
+        if (x == 0) this.neighbors[3].build()
+        if (z == 0) this.neighbors[1].build()
+        if (x == 15) this.neighbors[2].build()
+        if (z == 15) this.neighbors[0].build()
+        this.build()
+    }
+
     setNeigbors(north?: Chunk, south?: Chunk, east?: Chunk, west?: Chunk) {
         const neighbors = []
         if (north) neighbors.push(north)

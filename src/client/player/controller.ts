@@ -1,5 +1,6 @@
-import { Camera } from 'three'
+import { Camera, Object3D, Raycaster, Vector2, Vector3 } from 'three'
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
+import { blockIDLookup } from '../blocks/blocks'
 import { Terrain } from '../world/terrain'
 
 class PlayerController {
@@ -11,7 +12,9 @@ class PlayerController {
     movementSpeed: number
     camera: Camera
     controls: PointerLockControls
-    constructor(terrain: Terrain, camera: Camera) {
+    raycaster: Raycaster
+    chunkGroup: any
+    constructor(camera: Camera, terrain: Terrain, chunkGroup: Object3D) {
         this.terrain = terrain
         this.width = 0.6
         this.length = 0.6
@@ -21,9 +24,14 @@ class PlayerController {
         this.camera = camera
         this.controls = new PointerLockControls(camera, document.body)
         document.body.addEventListener('click', () => this.controls.lock())
+        this.raycaster = new Raycaster()
+        this.chunkGroup = chunkGroup
     }
 
-    onMouseDown(e: MouseEvent) {}
+    onMouseDown(e: MouseEvent) {
+        if (e.button == 2) this.placeBlock()
+        else this.breakBlock()
+    }
     onMouseUp(e: MouseEvent) {}
     onKeyDown(e: KeyboardEvent) {
         this.pressedKeys[e.code] = true
@@ -41,9 +49,28 @@ class PlayerController {
         if (this.pressedKeys['ShiftLeft']) this.camera.position.y -= delta * this.movementSpeed
     }
 
-    castRay() {}
-    placeBlock() {}
-    breakBlock() {}
+    castRay(inside = true) {
+        this.raycaster.setFromCamera(new Vector2(0, 0), this.camera)
+        const intersect = this.raycaster.intersectObjects(this.chunkGroup.children)[0]
+        if (intersect?.face) {
+            const norm = intersect.face.normal.divideScalar(2).multiplyScalar(inside ? -1 : 1)
+            return new Vector3().copy(intersect.point).add(norm).addScalar(0.5).floor()
+        }
+    }
+
+    placeBlock() {
+        const pos = this.castRay(false)
+        if (!pos) return
+        const { x, y, z } = pos
+        const block = blockIDLookup.get('stone')
+        this.terrain.setBlock(x, y, z, block, true)
+    }
+    breakBlock() {
+        const pos = this.castRay(true)
+        if (!pos) return
+        const { x, y, z } = pos
+        this.terrain.setBlock(x, y, z, 0, true)
+    }
 }
 
 export { PlayerController }
