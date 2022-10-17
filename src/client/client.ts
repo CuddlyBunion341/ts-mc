@@ -1,5 +1,4 @@
 import { Clock, Group, MeshMatcapMaterial, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Stats from 'three/examples/jsm/libs/stats.module'
 import { Atlas } from './blocks/atlas'
 import { textures } from './blocks/blocks'
@@ -51,9 +50,7 @@ renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setPixelRatio(devicePixelRatio)
 document.body.appendChild(renderer.domElement)
 
-const controls = new OrbitControls(camera, renderer.domElement)
-
-const player = new PlayerController(terrain)
+const player = new PlayerController(terrain, camera)
 document.addEventListener('keydown', (e) => player.onKeyDown(e))
 document.addEventListener('mousedown', (e) => player.onMouseDown(e))
 document.addEventListener('mouseup', (e) => player.onMouseUp(e))
@@ -75,7 +72,6 @@ const clock = new Clock()
 
 function animate() {
     requestAnimationFrame(animate)
-    controls.update()
     player.update(clock.getDelta())
     render()
     stats.update()
