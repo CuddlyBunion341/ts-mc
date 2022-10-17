@@ -107,6 +107,7 @@ const blocks: Block[] = [
     new Block('Oak Planks', 2, new CubeAllModel('oak_planks')),
     new Block('Oak Log', 2, new TopSideModel('oak_log_top', 'oak_log')),
     new Block('Bedrock', 100, new CubeAllModel('bedrock')),
+    new Block('sand', 0.5, new CubeAllModel('sand')),
 ]
 
 // ---- Lookup Tables --------------------------------------------------------------------

@@ -6,8 +6,10 @@ import { Chunk } from './chunk'
 class TerrainGenerator {
     seed: number
     noise: NoiseFunction2D
-    hilliness = 5
-    minHeight = 200
+    hilliness = 10
+    spread = 64
+    minHeight = 60
+    seaLevel = 70
 
     constructor(seed: number = 69420) {
         this.seed = seed
@@ -20,7 +22,7 @@ class TerrainGenerator {
         for (let i = 0; i < width; i++) {
             const row = []
             for (let j = 0; j < height; j++) {
-                let value = this.noise((originX + i) / 64, (originZ + j) / 64)
+                let value = this.noise((originX + i) / this.spread, (originZ + j) / this.spread)
                 value = (value + 1) * this.hilliness
                 value += this.minHeight
                 row.push(value)
@@ -35,9 +37,17 @@ class TerrainGenerator {
         const heights = this.createHeightMap(chunk.x * 16, chunk.z * 16, 16, 16)
         for (let x = 0; x < 16; x++) {
             for (let z = 0; z < 16; z++) {
-                const height = heights[x][z]
+                const height = Math.floor(heights[x][z])
                 for (let y = 0; y < height; y++) {
-                    let block = blockIDLookup.get('grass_block')
+                    let block = blockIDLookup.get('stone')
+
+                    if (y == height - 1 && y > this.seaLevel)
+                        block = blockIDLookup.get('grass_block')
+                    else if (y == height - 1 && y <= this.seaLevel)
+                        block = blockIDLookup.get('sand')
+                    else if (y >= height - 5) block = blockIDLookup.get('dirt')
+                    else if (y == 0) block = blockIDLookup.get('bedrock')
+
                     const sy = Math.floor(y / 16)
                     const index = 16 * 16 * z + 16 * (y % 16) + x
                     chunk.subchunks[sy] ||= Array(4096).fill(0)
