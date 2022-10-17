@@ -2,53 +2,53 @@ import { AtlasRanges } from '../blocks/atlas'
 
 const data = [
     // front
-    { pos: [-1, -1, 1], norm: [0, 0, 1], uv: [0, 1] },
-    { pos: [1, -1, 1], norm: [0, 0, 1], uv: [1, 1] },
-    { pos: [-1, 1, 1], norm: [0, 0, 1], uv: [0, 0] },
+    { shade: 1, pos: [-1, -1, 1], norm: [0, 0, 1], uv: [0, 1] },
+    { shade: 1, pos: [1, -1, 1], norm: [0, 0, 1], uv: [1, 1] },
+    { shade: 1, pos: [-1, 1, 1], norm: [0, 0, 1], uv: [0, 0] },
 
-    { pos: [-1, 1, 1], norm: [0, 0, 1], uv: [0, 0] },
-    { pos: [1, -1, 1], norm: [0, 0, 1], uv: [1, 1] },
-    { pos: [1, 1, 1], norm: [0, 0, 1], uv: [1, 0] },
+    { shade: 1, pos: [-1, 1, 1], norm: [0, 0, 1], uv: [0, 0] },
+    { shade: 1, pos: [1, -1, 1], norm: [0, 0, 1], uv: [1, 1] },
+    { shade: 1, pos: [1, 1, 1], norm: [0, 0, 1], uv: [1, 0] },
     // right
-    { pos: [1, -1, 1], norm: [1, 0, 0], uv: [0, 1] },
-    { pos: [1, -1, -1], norm: [1, 0, 0], uv: [1, 1] },
-    { pos: [1, 1, 1], norm: [1, 0, 0], uv: [0, 0] },
+    { shade: 2, pos: [1, -1, 1], norm: [1, 0, 0], uv: [0, 1] },
+    { shade: 2, pos: [1, -1, -1], norm: [1, 0, 0], uv: [1, 1] },
+    { shade: 2, pos: [1, 1, 1], norm: [1, 0, 0], uv: [0, 0] },
 
-    { pos: [1, 1, 1], norm: [1, 0, 0], uv: [0, 0] },
-    { pos: [1, -1, -1], norm: [1, 0, 0], uv: [1, 1] },
-    { pos: [1, 1, -1], norm: [1, 0, 0], uv: [1, 0] },
+    { shade: 2, pos: [1, 1, 1], norm: [1, 0, 0], uv: [0, 0] },
+    { shade: 2, pos: [1, -1, -1], norm: [1, 0, 0], uv: [1, 1] },
+    { shade: 2, pos: [1, 1, -1], norm: [1, 0, 0], uv: [1, 0] },
     // back
-    { pos: [1, -1, -1], norm: [0, 0, -1], uv: [0, 1] },
-    { pos: [-1, -1, -1], norm: [0, 0, -1], uv: [1, 1] },
-    { pos: [1, 1, -1], norm: [0, 0, -1], uv: [0, 0] },
+    { shade: 1, pos: [1, -1, -1], norm: [0, 0, -1], uv: [0, 1] },
+    { shade: 1, pos: [-1, -1, -1], norm: [0, 0, -1], uv: [1, 1] },
+    { shade: 1, pos: [1, 1, -1], norm: [0, 0, -1], uv: [0, 0] },
 
-    { pos: [1, 1, -1], norm: [0, 0, -1], uv: [0, 0] },
-    { pos: [-1, -1, -1], norm: [0, 0, -1], uv: [1, 1] },
-    { pos: [-1, 1, -1], norm: [0, 0, -1], uv: [1, 0] },
+    { shade: 1, pos: [1, 1, -1], norm: [0, 0, -1], uv: [0, 0] },
+    { shade: 1, pos: [-1, -1, -1], norm: [0, 0, -1], uv: [1, 1] },
+    { shade: 1, pos: [-1, 1, -1], norm: [0, 0, -1], uv: [1, 0] },
     // left
-    { pos: [-1, -1, -1], norm: [-1, 0, 0], uv: [0, 1] },
-    { pos: [-1, -1, 1], norm: [-1, 0, 0], uv: [1, 1] },
-    { pos: [-1, 1, -1], norm: [-1, 0, 0], uv: [0, 0] },
+    { shade: 2, pos: [-1, -1, -1], norm: [-1, 0, 0], uv: [0, 1] },
+    { shade: 2, pos: [-1, -1, 1], norm: [-1, 0, 0], uv: [1, 1] },
+    { shade: 2, pos: [-1, 1, -1], norm: [-1, 0, 0], uv: [0, 0] },
 
-    { pos: [-1, 1, -1], norm: [-1, 0, 0], uv: [0, 0] },
-    { pos: [-1, -1, 1], norm: [-1, 0, 0], uv: [1, 1] },
-    { pos: [-1, 1, 1], norm: [-1, 0, 0], uv: [1, 0] },
+    { shade: 2, pos: [-1, 1, -1], norm: [-1, 0, 0], uv: [0, 0] },
+    { shade: 2, pos: [-1, -1, 1], norm: [-1, 0, 0], uv: [1, 1] },
+    { shade: 2, pos: [-1, 1, 1], norm: [-1, 0, 0], uv: [1, 0] },
     // top
-    { pos: [1, 1, -1], norm: [0, 1, 0], uv: [0, 1] },
-    { pos: [-1, 1, -1], norm: [0, 1, 0], uv: [1, 1] },
-    { pos: [1, 1, 1], norm: [0, 1, 0], uv: [0, 0] },
+    { shade: 0, pos: [1, 1, -1], norm: [0, 1, 0], uv: [0, 1] },
+    { shade: 0, pos: [-1, 1, -1], norm: [0, 1, 0], uv: [1, 1] },
+    { shade: 0, pos: [1, 1, 1], norm: [0, 1, 0], uv: [0, 0] },
 
-    { pos: [1, 1, 1], norm: [0, 1, 0], uv: [0, 0] },
-    { pos: [-1, 1, -1], norm: [0, 1, 0], uv: [1, 1] },
-    { pos: [-1, 1, 1], norm: [0, 1, 0], uv: [1, 0] },
+    { shade: 0, pos: [1, 1, 1], norm: [0, 1, 0], uv: [0, 0] },
+    { shade: 0, pos: [-1, 1, -1], norm: [0, 1, 0], uv: [1, 1] },
+    { shade: 0, pos: [-1, 1, 1], norm: [0, 1, 0], uv: [1, 0] },
     // bottom
-    { pos: [1, -1, 1], norm: [0, -1, 0], uv: [0, 1] },
-    { pos: [-1, -1, 1], norm: [0, -1, 0], uv: [1, 1] },
-    { pos: [1, -1, -1], norm: [0, -1, 0], uv: [0, 0] },
+    { shade: 3, pos: [1, -1, 1], norm: [0, -1, 0], uv: [0, 1] },
+    { shade: 3, pos: [-1, -1, 1], norm: [0, -1, 0], uv: [1, 1] },
+    { shade: 3, pos: [1, -1, -1], norm: [0, -1, 0], uv: [0, 0] },
 
-    { pos: [1, -1, -1], norm: [0, -1, 0], uv: [0, 0] },
-    { pos: [-1, -1, 1], norm: [0, -1, 0], uv: [1, 1] },
-    { pos: [-1, -1, -1], norm: [0, -1, 0], uv: [1, 0] },
+    { shade: 3, pos: [1, -1, -1], norm: [0, -1, 0], uv: [0, 0] },
+    { shade: 3, pos: [-1, -1, 1], norm: [0, -1, 0], uv: [1, 1] },
+    { shade: 3, pos: [-1, -1, -1], norm: [0, -1, 0], uv: [1, 0] },
 ]
 
 function getGeometryData(
@@ -74,9 +74,10 @@ function getGeometryData(
             let [u, v] = vertex.uv
             u = u ? u2 : u1
             v = v ? v2 : v1
-
             uvs.push(u, v)
-            colors.push(1, 1, 1)
+
+            const shade = [1, 0.8, 0.5, 0.3][vertex.shade]
+            colors.push(shade, shade, shade)
         }
     }
     return { positions, normals, uvs, colors }

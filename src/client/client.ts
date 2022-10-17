@@ -1,4 +1,4 @@
-import { Clock, Group, MeshMatcapMaterial, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import { Clock, Group, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import Stats from 'three/examples/jsm/libs/stats.module'
 import { Atlas } from './blocks/atlas'
 import { textures } from './blocks/blocks'
@@ -15,7 +15,7 @@ Chunk.parentGroup = chunkGroup
 const atlas = new Atlas(textures)
 Chunk.atlasRanges = atlas.ranges
 
-const material = new MeshMatcapMaterial({ map: atlas.texture })
+const material = new MeshBasicMaterial({ map: atlas.texture, vertexColors: true })
 Chunk.material = material
 
 const terrain = new Terrain()
