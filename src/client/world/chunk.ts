@@ -1,4 +1,6 @@
 import { BufferAttribute, BufferGeometry, Group, Material, Mesh } from 'three'
+import { AtlasRanges } from '../blocks/atlas'
+import { blockNameLookup, blockTexturesLookup } from '../blocks/blocks'
 import { getGeometryData } from './builder'
 import { TerrainGenerator } from './generator'
 
@@ -11,6 +13,7 @@ class Chunk {
     static parentGroup: Group
     static material: Material
     static generator: TerrainGenerator
+    static atlasRanges: AtlasRanges
 
     constructor(x: number, z: number) {
         this.x = x
@@ -21,7 +24,7 @@ class Chunk {
     }
 
     get(x: number, y: number, z: number) {
-        if (x >= 16 || x < 0 || y >= 256 || y < 0 || z >= 16 || z < 0) return 0
+        if (x >= 16 || x < 0 || y >= 256 || y < 0 || z >= 16 || z < 0) return 1 // performance
         const sy = Math.floor(y / 16)
         if (!this.subchunks[sy]) return
         const index = 16 * 16 * z + 16 * (y % 16) + x
@@ -46,7 +49,8 @@ class Chunk {
                 for (let sy = 0; sy < 16; sy++) {
                     if (!this.subchunks[sy]) continue
                     for (let y = sy * 16; y < sy * 16 + 16; y++) {
-                        if (!this.get(x, y, z)) continue
+                        const block = this.get(x, y, z)
+                        if (!block) continue
                         const faces = [
                             !this.get(x, y, z + 1),
                             !this.get(x + 1, y, z),
@@ -55,7 +59,9 @@ class Chunk {
                             !this.get(x, y + 1, z),
                             !this.get(x, y - 1, z),
                         ]
-                        const data = getGeometryData(x, y, z, faces)
+                        const textures = blockTexturesLookup.get(blockNameLookup.get(block))[0]
+
+                        const data = getGeometryData(x, y, z, faces, textures, Chunk.atlasRanges)
 
                         positions.push(...data.positions)
                         normals.push(...data.normals)

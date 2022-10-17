@@ -1,5 +1,6 @@
 import alea from 'alea'
 import { createNoise2D, NoiseFunction2D } from 'simplex-noise'
+import { blockIDLookup } from '../blocks/blocks'
 import { Chunk } from './chunk'
 
 class TerrainGenerator {
@@ -36,7 +37,7 @@ class TerrainGenerator {
             for (let z = 0; z < 16; z++) {
                 const height = heights[x][z]
                 for (let y = 0; y < height; y++) {
-                    let block = 1
+                    let block = blockIDLookup.get('grass_block')
                     const sy = Math.floor(y / 16)
                     const index = 16 * 16 * z + 16 * (y % 16) + x
                     chunk.subchunks[sy] ||= Array(4096).fill(0)

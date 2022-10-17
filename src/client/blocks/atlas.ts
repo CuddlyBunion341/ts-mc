@@ -53,7 +53,7 @@ class Atlas {
 
     static loadImages(
         fileNames: string[],
-        root = 'static/textures/block/',
+        root = 'textures/block/',
         ext = '.png'
     ): Promise<HTMLImageElement[]> {
         return new Promise((resolve, reject) => {
@@ -74,7 +74,6 @@ class Atlas {
                     reject(`Image '${fileName}' could not be loaded!`)
                 })
             }
-            resolve(images)
         })
     }
 
@@ -83,6 +82,7 @@ class Atlas {
         canvas.width = atlasWidth * imageWidth
         canvas.height = atlasWidth * imageWidth
         const ctx = canvas.getContext('2d')
+
         for (let i = 0; i < images.length; i++) {
             const image = images[i]
             const x = i % atlasWidth
@@ -108,4 +108,4 @@ class Atlas {
     }
 }
 
-export { Atlas }
+export { Atlas, AtlasRanges }

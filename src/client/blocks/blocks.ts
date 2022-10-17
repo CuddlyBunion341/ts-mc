@@ -28,8 +28,8 @@ class Block {
     constructor(name: string, hardness: number, model: BlockModel) {
         this.id = Block.blockCount++
         this.drops = [{ itemID: this.id, probability: 1 }]
-        this.name = name
-        this.displayName = name.toLowerCase().replace(' ', '_')
+        this.displayName = name
+        this.name = name.toLowerCase().replace(' ', '_')
         this.hardness = hardness
         this.model = model
     }
@@ -101,16 +101,38 @@ class CubeAllModel extends TopSideModel {
 const blocks: Block[] = [
     new Block('Air', 0, new EmptyModel()),
     new Block('Stone', 10, new CubeAllModel('stone')),
-    new Block(
-        'Grass Block',
-        0.6,
-        new TopSideBottomModel('grass_block_top', 'grass_block_side', 'dirt')
-    ),
+    new Block('Grass Block', 0.6, new TopSideBottomModel('grass_top', 'grass_side', 'dirt')),
     new Block('Dirt', 0.5, new CubeAllModel('dirt')),
     new Block('Cobblestone', 10, new CubeAllModel('cobblestone')),
     new Block('Oak Planks', 2, new CubeAllModel('oak_planks')),
-    new Block('Oak Log', 2, new TopSideModel('oak_log_top', 'oak_log_side')),
+    new Block('Oak Log', 2, new TopSideModel('oak_log_top', 'oak_log')),
     new Block('Bedrock', 100, new CubeAllModel('bedrock')),
 ]
 
-export { blocks }
+// ---- Lookup Tables --------------------------------------------------------------------
+const textures: string[] = []
+for (const block of blocks) {
+    const elements = block.model.elements
+    for (const element of elements) {
+        for (const texture of element.textures) {
+            if (!textures.includes(texture)) textures.push(texture)
+        }
+    }
+}
+
+const blockIDLookup = new Map()
+const blockNameLookup = new Map()
+const blockSidesLookup = new Map()
+const blockTexturesLookup = new Map()
+
+for (const block of blocks) {
+    blockIDLookup.set(block.name, block.id)
+    blockNameLookup.set(block.id, block.name)
+    blockSidesLookup.set(block.name, block.model.solidSides)
+    blockTexturesLookup.set(
+        block.name,
+        block.model.elements.map((e) => e.textures)
+    )
+}
+
+export { blocks, textures, blockIDLookup, blockNameLookup, blockSidesLookup, blockTexturesLookup }

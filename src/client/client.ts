@@ -1,10 +1,10 @@
-import { Group, MeshNormalMaterial, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import { Group, MeshMatcapMaterial, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Stats from 'three/examples/jsm/libs/stats.module'
-import { blocks } from './blocks/blocks'
+import { Atlas } from './blocks/atlas'
+import { textures } from './blocks/blocks'
 import { Chunk } from './world/chunk'
 import { Terrain } from './world/terrain'
-console.log(blocks)
 
 const scene = new Scene()
 
@@ -12,17 +12,22 @@ const chunkGroup = new Group()
 scene.add(chunkGroup)
 Chunk.parentGroup = chunkGroup
 
-const material = new MeshNormalMaterial()
+const atlas = new Atlas(textures)
+Chunk.atlasRanges = atlas.ranges
+
+const material = new MeshMatcapMaterial({ map: atlas.texture })
 Chunk.material = material
 
 const terrain = new Terrain()
 
-for (let i = 0; i < 20; i++) {
-    for (let j = 0; j < 20; j++) {
+console.time('Chunk generation')
+for (let i = 0; i < 30; i++) {
+    for (let j = 0; j < 30; j++) {
         const chunk = terrain.createChunk(i, j)
         requestIdleCallback(() => chunk?.build())
     }
 }
+console.timeEnd('Chunk generation')
 
 const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
 camera.position.set(200, 200, 200)
