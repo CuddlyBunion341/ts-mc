@@ -14,6 +14,7 @@ class Terrain {
         if (this.getChunk(x, z)) return
         const chunk = new Chunk(x, z)
         this.chunks.set(Terrain.key(x, z), chunk)
+
         return chunk
     }
 
@@ -25,7 +26,8 @@ class Terrain {
         const chunkX = Math.floor(x / 16)
         const chunkZ = Math.floor(z / 16)
         const chunk = this.getChunk(chunkX, chunkZ)
-        if (chunk?.set(x % 16, y, z % 16, block)) {
+        if (chunk?.get(x % 16, y, z % 16) != block) {
+            chunk?.set(x % 16, y, z % 16, block)
             chunk?.build()
             return true
         }

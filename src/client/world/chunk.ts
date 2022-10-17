@@ -9,6 +9,7 @@ class Chunk {
     z: number
     subchunks: number[][]
     mesh!: Mesh
+    neighbors!: Chunk[]
 
     static parentGroup: Group
     static material: Material
@@ -23,10 +24,15 @@ class Chunk {
         Chunk.generator.generate(this)
     }
 
-    get(x: number, y: number, z: number) {
-        if (x >= 16 || x < 0 || y >= 256 || y < 0 || z >= 16 || z < 0) return 1 // performance
+    get(x: number, y: number, z: number): number {
+        if (y < 0 || y > 255) return 0
+        if (x == -1) return this.neighbors[3].get(16 + x, y, z)
+        if (x == 16) return this.neighbors[2].get(16 - x, y, z)
+        if (z == -1) return this.neighbors[1].get(x, y, 16 + z)
+        if (z == 16) return this.neighbors[0].get(x, y, 16 - z)
+
         const sy = Math.floor(y / 16)
-        if (!this.subchunks[sy]) return
+        if (!this.subchunks[sy]) return 0
         const index = 16 * 16 * z + 16 * (y % 16) + x
         return this.subchunks[sy][index]
     }
@@ -36,6 +42,15 @@ class Chunk {
         this.subchunks[sy] ||= Array(4096).fill(0)
         const index = 16 * 16 * z + 16 * (y % 16) + x
         this.subchunks[sy][index] = block
+    }
+
+    setNeigbors(north?: Chunk, south?: Chunk, east?: Chunk, west?: Chunk) {
+        const neighbors = []
+        if (north) neighbors.push(north)
+        if (south) neighbors.push(south)
+        if (east) neighbors.push(east)
+        if (west) neighbors.push(west)
+        this.neighbors = neighbors
     }
 
     build() {
