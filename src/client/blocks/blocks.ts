@@ -20,18 +20,19 @@ class Block {
     displayName: string
     hardness: number
     drops: BlockDrop[]
-    transparent: boolean = false
+    transparent: boolean
 
     static blockCount = 0
     model: BlockModel
 
-    constructor(name: string, hardness: number, model: BlockModel) {
+    constructor(name: string, hardness: number, model: BlockModel, transparent = false) {
         this.id = Block.blockCount++
         this.drops = [{ itemID: this.id, probability: 1 }]
         this.displayName = name
         this.name = name.toLowerCase().replace(' ', '_')
         this.hardness = hardness
         this.model = model
+        this.transparent = transparent
     }
 }
 
@@ -99,7 +100,7 @@ class CubeAllModel extends TopSideModel {
 // ---- Blocks ---------------------------------------------------------------------------
 
 const blocks: Block[] = [
-    new Block('Air', 0, new EmptyModel()),
+    new Block('Air', 0, new EmptyModel(), true),
     new Block('Stone', 10, new CubeAllModel('stone')),
     new Block('Grass Block', 0.6, new TopSideBottomModel('grass_top', 'grass_side', 'dirt')),
     new Block('Dirt', 0.5, new CubeAllModel('dirt')),
@@ -108,6 +109,8 @@ const blocks: Block[] = [
     new Block('Oak Log', 2, new TopSideModel('oak_log_top', 'oak_log')),
     new Block('Bedrock', 100, new CubeAllModel('bedrock')),
     new Block('sand', 0.5, new CubeAllModel('sand')),
+    new Block('water', 100, new CubeAllModel('water'), true),
+    new Block('glass', 0.3, new CubeAllModel('glass'), true),
 ]
 
 // ---- Lookup Tables --------------------------------------------------------------------

@@ -2,30 +2,46 @@ import { Camera, Object3D, Raycaster, Vector2, Vector3 } from 'three'
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
 import { blockIDLookup } from '../blocks/blocks'
 import { Terrain } from '../world/terrain'
+import { Outline } from './blockOutline'
 
 class PlayerController {
-    terrain: Terrain
+    private terrain: Terrain
+    private pressedKeys: Record<string, boolean>
+    private raycaster: Raycaster
     width: number
     length: number
     height: number
-    pressedKeys: Record<string, boolean>
     movementSpeed: number
     camera: Camera
     controls: PointerLockControls
-    raycaster: Raycaster
     chunkGroup: any
-    constructor(camera: Camera, terrain: Terrain, chunkGroup: Object3D) {
+    velocity: Vector3
+    outline: Outline
+    constructor(camera: Camera, terrain: Terrain, chunkGroup: Object3D, outline: Outline) {
         this.terrain = terrain
         this.width = 0.6
         this.length = 0.6
         this.height = 1.8
-        this.movementSpeed = 20
+        this.movementSpeed = 10
         this.pressedKeys = {}
         this.camera = camera
+        this.velocity = new Vector3(0, 0, 0)
         this.controls = new PointerLockControls(camera, document.body)
         document.body.addEventListener('click', () => this.controls.lock())
         this.raycaster = new Raycaster()
         this.chunkGroup = chunkGroup
+        this.outline = outline
+
+        // place player
+        while (true) {
+            const { x, y, z } = new Vector3().copy(camera.position).addScalar(0.5).floor()
+            if (terrain.getBlock(x, y, z) == 0) {
+                camera.position.y -= 1
+            } else {
+                camera.position.set(x, y + 2.3, z)
+                break
+            }
+        }
     }
 
     onMouseDown(e: MouseEvent) {
@@ -47,6 +63,16 @@ class PlayerController {
         if (this.pressedKeys['KeyA']) this.controls.moveRight(delta * -this.movementSpeed)
         if (this.pressedKeys['Space']) this.camera.position.y += delta * this.movementSpeed
         if (this.pressedKeys['ShiftLeft']) this.camera.position.y -= delta * this.movementSpeed
+
+        const position = this.castRay(true)
+        if (position) {
+            const { x, y, z } = position
+            this.outline.moveTo(x, y, z)
+        } else this.outline.moveOut()
+    }
+
+    testCollision(dx: number, dy: number, dz: number) {
+        return false
     }
 
     castRay(inside = true) {
@@ -62,7 +88,7 @@ class PlayerController {
         const pos = this.castRay(false)
         if (!pos) return
         const { x, y, z } = pos
-        const block = blockIDLookup.get('stone')
+        const block = blockIDLookup.get('glass')
         this.terrain.setBlock(x, y, z, block, true)
     }
     breakBlock() {

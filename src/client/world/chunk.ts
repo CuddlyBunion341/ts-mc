@@ -1,6 +1,6 @@
 import { BufferAttribute, BufferGeometry, Group, Material, Mesh } from 'three'
 import { AtlasRanges } from '../blocks/atlas'
-import { blockNameLookup, blockTexturesLookup } from '../blocks/blocks'
+import { blockNameLookup, blocks, blockTexturesLookup } from '../blocks/blocks'
 import { getGeometryData } from './builder'
 import { TerrainGenerator } from './generator'
 
@@ -8,11 +8,12 @@ class Chunk {
     x: number
     z: number
     subchunks: number[][]
-    mesh!: Mesh
+    meshes: Mesh[]
     neighbors!: Chunk[]
 
     static parentGroup: Group
     static material: Material
+    static material2: Material
     static generator: TerrainGenerator
     static atlasRanges: AtlasRanges
 
@@ -20,6 +21,7 @@ class Chunk {
         this.x = x
         this.z = z
         this.subchunks = Array(16)
+        this.meshes = []
 
         Chunk.generator.generate(this)
     }
@@ -64,10 +66,17 @@ class Chunk {
     }
 
     build() {
+        this.dispose()
+
         const positions: number[] = []
         const normals: number[] = []
         const colors: number[] = []
         const uvs: number[] = []
+
+        const positions2: number[] = []
+        const normals2: number[] = []
+        const colors2: number[] = []
+        const uvs2: number[] = []
 
         for (let x = 0; x < 16; x++) {
             for (let z = 0; z < 16; z++) {
@@ -76,46 +85,79 @@ class Chunk {
                     for (let y = sy * 16; y < sy * 16 + 16; y++) {
                         const block = this.get(x, y, z)
                         if (!block) continue
+                        const transparent = blocks[block].transparent
+                        const addFace = (x: number, y: number, z: number) => {
+                            const id = this.get(x, y, z)
+                            if (id == 0) return true
+                            return !transparent && blocks[id].transparent
+                        }
                         const faces = [
-                            !this.get(x, y, z + 1),
-                            !this.get(x + 1, y, z),
-                            !this.get(x, y, z - 1),
-                            !this.get(x - 1, y, z),
-                            !this.get(x, y + 1, z),
-                            !this.get(x, y - 1, z),
+                            addFace(x, y, z + 1),
+                            addFace(x + 1, y, z),
+                            addFace(x, y, z - 1),
+                            addFace(x - 1, y, z),
+                            addFace(x, y + 1, z),
+                            addFace(x, y - 1, z),
                         ]
                         const textures = blockTexturesLookup.get(blockNameLookup.get(block))[0]
 
                         const data = getGeometryData(x, y, z, faces, textures, Chunk.atlasRanges)
 
-                        positions.push(...data.positions)
-                        normals.push(...data.normals)
-                        colors.push(...data.colors)
-                        uvs.push(...data.uvs)
+                        if (transparent) {
+                            positions2.push(...data.positions)
+                            normals2.push(...data.normals)
+                            colors2.push(...data.colors)
+                            uvs2.push(...data.uvs)
+                        } else {
+                            positions.push(...data.positions)
+                            normals.push(...data.normals)
+                            colors.push(...data.colors)
+                            uvs.push(...data.uvs)
+                        }
                     }
                 }
             }
         }
 
-        const geometry = new BufferGeometry()
-        const setAttribute = (name: string, arr: number[], size: number) => {
+        const setAttribute = (
+            geometry: BufferGeometry,
+            name: string,
+            arr: number[],
+            size: number
+        ) => {
             geometry.setAttribute(name, new BufferAttribute(new Float32Array(arr), size))
         }
-        setAttribute('position', positions, 3)
-        setAttribute('normal', normals, 3)
-        setAttribute('uv', uvs, 2)
-        setAttribute('color', colors, 3)
+        {
+            const geometry = new BufferGeometry()
+            setAttribute(geometry, 'position', positions, 3)
+            setAttribute(geometry, 'normal', normals, 3)
+            setAttribute(geometry, 'uv', uvs, 2)
+            setAttribute(geometry, 'color', colors, 3)
 
-        if (this.mesh) this.dispose()
+            const mesh = new Mesh(geometry, Chunk.material)
+            mesh.position.set(this.x * 16, 0, this.z * 16)
+            this.meshes.push(mesh)
+            Chunk.parentGroup.add(mesh)
+        }
+        {
+            const geometry = new BufferGeometry()
+            setAttribute(geometry, 'position', positions2, 3)
+            setAttribute(geometry, 'normal', normals2, 3)
+            setAttribute(geometry, 'uv', uvs2, 2)
+            setAttribute(geometry, 'color', colors2, 3)
 
-        this.mesh = new Mesh(geometry, Chunk.material)
-        this.mesh.position.set(this.x * 16, 0, this.z * 16)
-        Chunk.parentGroup.add(this.mesh)
+            const mesh = new Mesh(geometry, Chunk.material2)
+            mesh.position.set(this.x * 16, 0, this.z * 16)
+            this.meshes.push(mesh)
+            Chunk.parentGroup.add(mesh)
+        }
     }
 
     dispose() {
-        this.mesh.removeFromParent()
-        this.mesh.geometry.dispose()
+        for (const mesh of this.meshes) {
+            mesh.removeFromParent()
+            mesh.geometry.dispose()
+        }
     }
 }
 

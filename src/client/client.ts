@@ -1,12 +1,22 @@
-import { Clock, Group, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import {
+    Clock,
+    Color,
+    Group,
+    MeshBasicMaterial,
+    PerspectiveCamera,
+    Scene,
+    WebGLRenderer,
+} from 'three'
 import Stats from 'three/examples/jsm/libs/stats.module'
 import { Atlas } from './blocks/atlas'
 import { textures } from './blocks/blocks'
+import { Outline } from './player/blockOutline'
 import { PlayerController } from './player/controller'
 import { Chunk } from './world/chunk'
 import { Terrain } from './world/terrain'
 
 const scene = new Scene()
+scene.background = new Color(0x78a7ff)
 
 const chunkGroup = new Group()
 scene.add(chunkGroup)
@@ -16,6 +26,13 @@ const atlas = new Atlas(textures)
 Chunk.atlasRanges = atlas.ranges
 
 const material = new MeshBasicMaterial({ map: atlas.texture, vertexColors: true })
+const material2 = new MeshBasicMaterial({
+    map: atlas.texture,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.8,
+})
+Chunk.material2 = material2
 Chunk.material = material
 
 const terrain = new Terrain()
@@ -50,7 +67,11 @@ renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setPixelRatio(devicePixelRatio)
 document.body.appendChild(renderer.domElement)
 
-const player = new PlayerController(camera, terrain, chunkGroup)
+const outline = new Outline()
+scene.add(outline.mesh)
+scene.add(outline.helper)
+
+const player = new PlayerController(camera, terrain, chunkGroup, outline)
 document.addEventListener('keydown', (e) => player.onKeyDown(e))
 document.addEventListener('mousedown', (e) => player.onMouseDown(e))
 document.addEventListener('mouseup', (e) => player.onMouseUp(e))
