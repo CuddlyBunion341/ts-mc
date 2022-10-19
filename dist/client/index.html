@@ -5,90 +5,60 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Minecraft Clone</title>
-        <style>
-            body {
-                margin: 0;
-            }
-            .overlay {
-                position: absolute;
-                width: 100%;
-                height: 100%;
-                top: 0;
-                left: 0;
-            }
-            .water {
-                image-rendering: pixelated;
-                object-fit: cover;
-                display: none;
-            }
-            #hud img {
-                image-rendering: pixelated;
-            }
-            .hotbar {
-                position: absolute;
-                left: 50%;
-                bottom: 40px;
-                transform: translate(-50%, 0);
-                transform: scale(3);
-            }
-            .hearts,
-            .hunger {
-                display: inline-flex;
-            }
-            .hearts {
-                float: left;
-            }
-            .hunger {
-                float: right;
-            }
-            .hearts img {
-                margin-right: -1px;
-                margin-bottom: 2px;
-            }
-            .hunger img {
-                margin-left: -1px;
-                margin-bottom: 2px;
-            }
-            .selected {
-                --index: 0;
-                position: absolute;
-                bottom: 3px;
-                left: calc(-1px + 20px * var(--index));
-            }
-        </style>
+        <link rel="stylesheet" href="style.min.css" />
     </head>
     <body>
         <script type="module" src="bundle.js"></script>
         <img class="overlay water-overlay" src="gui/hud/underwater.png" alt="Underwater Texture" />
         <div id="hud" class="overlay">
             <div class="hotbar">
-                <div class="hearts">
-                    <img src="gui/hud/heart-full.png" alt="" />
-                    <img src="gui/hud/heart-full.png" alt="" />
-                    <img src="gui/hud/heart-full.png" alt="" />
-                    <img src="gui/hud/heart-full.png" alt="" />
-                    <img src="gui/hud/heart-full.png" alt="" />
-                    <img src="gui/hud/heart-full.png" alt="" />
-                    <img src="gui/hud/heart-full.png" alt="" />
-                    <img src="gui/hud/heart-full.png" alt="" />
-                    <img src="gui/hud/heart-full.png" alt="" />
-                    <img src="gui/hud/heart-full.png" alt="" />
+                <div class="healthbar">
+                    <img class="heart" />
+                    <img class="heart" />
+                    <img class="heart" />
+                    <img class="heart" />
+                    <img class="heart" />
+                    <img class="heart" />
+                    <img class="heart" />
+                    <img class="heart" />
+                    <img class="heart" />
+                    <img class="heart" />
                 </div>
-                <div class="hunger">
-                    <img src="gui/hud/hunger-full.png" alt="" />
-                    <img src="gui/hud/hunger-full.png" alt="" />
-                    <img src="gui/hud/hunger-full.png" alt="" />
-                    <img src="gui/hud/hunger-full.png" alt="" />
-                    <img src="gui/hud/hunger-full.png" alt="" />
-                    <img src="gui/hud/hunger-full.png" alt="" />
-                    <img src="gui/hud/hunger-full.png" alt="" />
-                    <img src="gui/hud/hunger-full.png" alt="" />
-                    <img src="gui/hud/hunger-full.png" alt="" />
-                    <img src="gui/hud/hunger-full.png" alt="" />
+                <div class="hungerbar">
+                    <img class="hunger" />
+                    <img class="hunger" />
+                    <img class="hunger" />
+                    <img class="hunger" />
+                    <img class="hunger" />
+                    <img class="hunger" />
+                    <img class="hunger" />
+                    <img class="hunger" />
+                    <img class="hunger" />
+                    <img class="hunger" />
                 </div>
                 <div class="slot-container">
-                    <img src="gui/hud/slots.png" alt="" />
+                    <img src="gui/hud/slots.png" />
                     <img src="gui/hud/selected-slot.png" alt="selected" class="selected" />
+                    <div class="item" style="--index: 0">
+                        <img src="textures/items/stone.webp" />
+                        <span class="count">64</span>
+                    </div>
+                    <div class="item" style="--index: 1">
+                        <img src="textures/items/cobblestone.webp" />
+                        <span class="count">64</span>
+                    </div>
+                    <div class="item" style="--index: 2">
+                        <img src="textures/items/dirt.webp" />
+                        <span class="count">64</span>
+                    </div>
+                    <div class="item" style="--index: 3">
+                        <img src="textures/items/log.webp" />
+                        <span class="count">64</span>
+                    </div>
+                    <div class="item" style="--index: 4">
+                        <img src="textures/items/planks.webp" />
+                        <span class="count">64</span>
+                    </div>
                 </div>
             </div>
         </div>

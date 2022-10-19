@@ -1,0 +1,87 @@
+body {
+    margin: 0;
+}
+.overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+.water {
+    image-rendering: pixelated;
+    object-fit: cover;
+    display: none;
+}
+#hud {
+    img {
+        image-rendering: pixelated;
+    }
+    user-select: none;
+}
+.hotbar {
+    position: absolute;
+    left: 50%;
+    bottom: 40px;
+    transform: translate(-50%, 0);
+    transform: scale(3);
+}
+.healthbar,
+.hungerbar {
+    display: inline-flex;
+    margin-bottom: 2px;
+}
+.healthbar {
+    float: left;
+}
+.hungerbar {
+    float: right;
+}
+.heart {
+    margin-right: -1px;
+    content: url('gui/hud/heart-full.png');
+    &.half {
+        content: url('gui/hud/heart-semi.png');
+    }
+    &.empty {
+        content: url('gui/hud/heart_empty.png');
+    }
+}
+
+.hunger {
+    margin-left: -1px;
+    content: url('gui/hud/hunger-full.png');
+    &.half {
+        content: url('gui/hud/hunger-semi.png');
+    }
+    &.empty {
+        content: url('gui/hud/hunger-empty.png');
+    }
+}
+
+.selected {
+    --index: 0;
+    position: absolute;
+    bottom: 3px;
+    left: calc(-1px + 20px * var(--index));
+}
+
+.item {
+    --index: 0;
+    & > img {
+        width: 14px;
+    }
+    & .count {
+        position: absolute;
+        z-index: 999;
+        font-size: 7px;
+        font-family: minecraft;
+        bottom: 3px;
+        left: 6px;
+        color: white;
+        text-shadow: 1px 1px 0 rgb(23, 23, 23);
+    }
+    position: absolute;
+    left: calc(4px + 20px * var(--index));
+    bottom: 4px;
+}
