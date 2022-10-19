@@ -1,6 +1,7 @@
 import {
     Clock,
     Color,
+    Fog,
     Group,
     MeshBasicMaterial,
     PerspectiveCamera,
@@ -17,6 +18,7 @@ import { Terrain } from './world/terrain'
 
 const scene = new Scene()
 scene.background = new Color(0x78a7ff)
+scene.fog = new Fog(0xf0f0f0, 64, 300)
 
 const chunkGroup = new Group()
 scene.add(chunkGroup)
