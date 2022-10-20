@@ -38,16 +38,17 @@ Chunk.material2 = material2
 Chunk.material = material
 
 const terrain = new Terrain()
+const renderDistance = 16
 
 console.time('Chunk generation')
-for (let i = -1; i < 31; i++) {
-    for (let j = -1; j < 31; j++) {
+for (let i = -1; i <= renderDistance; i++) {
+    for (let j = -1; j <= renderDistance; j++) {
         terrain.createChunk(i, j)
     }
 }
 
-for (let i = 0; i < 30; i++) {
-    for (let j = 0; j < 30; j++) {
+for (let i = 0; i < renderDistance; i++) {
+    for (let j = 0; j < renderDistance; j++) {
         const chunk = terrain.getChunk(i, j)
         chunk?.setNeigbors(
             terrain.getChunk(i, j + 1),

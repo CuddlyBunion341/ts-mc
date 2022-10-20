@@ -10,6 +10,7 @@ class Chunk {
     subchunks: number[][]
     meshes: Mesh[]
     neighbors!: Chunk[]
+    isModified: boolean
 
     static parentGroup: Group
     static material: Material
@@ -22,6 +23,7 @@ class Chunk {
         this.z = z
         this.subchunks = Array(16)
         this.meshes = []
+        this.isModified = false
 
         Chunk.generator.generate(this)
     }
@@ -49,6 +51,7 @@ class Chunk {
     update(x: number, y: number, z: number, block: number) {
         if (this.get(x, y, z) == block) return
         this.set(x, y, z, block)
+        this.isModified = true
         if (x == 0) this.neighbors[3].build()
         if (z == 0) this.neighbors[1].build()
         if (x == 15) this.neighbors[2].build()
