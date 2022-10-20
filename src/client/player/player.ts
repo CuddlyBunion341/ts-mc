@@ -21,7 +21,7 @@ class Player {
         const hotbar = ['stone', 'cobblestone', 'dirt', 'oak_log', 'oak_planks', 'glass']
 
         for (let i = 0; i < hotbar.length; i++) {
-            this.setItem(i, blockIDLookup.get(hotbar[i]), 64)
+            this.setItem(i, blockIDLookup.get(hotbar[i]), 10)
         }
     }
 
@@ -29,14 +29,19 @@ class Player {
         return this.inventory[index]
     }
 
-    getSelectedItem() {
-        return this.inventory[this.selectedSlot]?.itemID
+    getSelectedSlot() {
+        return this.inventory[this.selectedSlot]
     }
 
     setItem(index: number, itemID: number, count: number) {
         if (index < 0 || index >= 27) return
         const value = { itemID, count }
         this.inventory[index] = value
+    }
+
+    setItemCount(index: number, newCount: number) {
+        if (index < 0 || index >= 27) return
+        this.inventory[index].count = newCount
     }
 }
 

@@ -145,8 +145,10 @@ class PlayerController {
         const pos = this.castRay(false)
         if (!pos) return
         const { x, y, z } = pos
-        const block = this.player.getSelectedItem()
-        if (block) this.terrain.setBlock(x, y, z, block, true)
+        const slot = this.player.getSelectedSlot()
+        if (slot.count-- > 0) this.terrain.setBlock(x, y, z, slot.itemID, true)
+        const index = this.player.selectedSlot
+        hud.setItemCount(index, slot.count)
     }
     breakBlock() {
         const pos = this.castRay(true)

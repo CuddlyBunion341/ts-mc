@@ -98,6 +98,8 @@ body {
         left: 6px;
         color: white;
         text-shadow: 0.5px 0.5px 0 #2e2e2e;
+        width: 9px;
+        text-align: right;
     }
     position: absolute;
     left: calc(4px + 20px * var(--index));
