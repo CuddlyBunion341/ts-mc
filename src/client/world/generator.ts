@@ -1,6 +1,6 @@
 import alea from 'alea'
 import { createNoise2D, NoiseFunction2D } from 'simplex-noise'
-import { blockIDLookup } from '../blocks/blocks'
+import { blockIDs } from '../blocks/blocks'
 import { Chunk } from './chunk'
 
 class TerrainGenerator {
@@ -39,14 +39,12 @@ class TerrainGenerator {
             for (let z = 0; z < 16; z++) {
                 const height = Math.floor(heights[x][z])
                 for (let y = 0; y < height; y++) {
-                    let block = blockIDLookup.get('stone')
+                    let block = blockIDs.get('stone')
 
-                    if (y == height - 1 && y > this.seaLevel)
-                        block = blockIDLookup.get('grass_block')
-                    else if (y == height - 1 && y <= this.seaLevel)
-                        block = blockIDLookup.get('sand')
-                    else if (y >= height - 5) block = blockIDLookup.get('dirt')
-                    else if (y == 0) block = blockIDLookup.get('bedrock')
+                    if (y == height - 1 && y > this.seaLevel) block = blockIDs.get('grass_block')
+                    else if (y == height - 1 && y <= this.seaLevel) block = blockIDs.get('sand')
+                    else if (y >= height - 5) block = blockIDs.get('dirt')
+                    else if (y == 0) block = blockIDs.get('bedrock')
 
                     const sy = Math.floor(y / 16)
                     const index = 16 * 16 * z + 16 * (y % 16) + x
@@ -59,7 +57,7 @@ class TerrainGenerator {
                     const sy = Math.floor(y / 16)
                     const index = 16 * 16 * z + 16 * (y % 16) + x
                     chunk.subchunks[sy] ||= Array(4096).fill(0)
-                    chunk.subchunks[sy][index] = blockIDLookup.get('water')
+                    chunk.subchunks[sy][index] = blockIDs.get('water')
                 }
             }
         }

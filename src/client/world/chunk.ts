@@ -1,6 +1,6 @@
 import { BufferAttribute, BufferGeometry, Group, Material, Mesh } from 'three'
 import { AtlasRanges } from '../blocks/atlas'
-import { blockNameLookup, blocks, blockTexturesLookup } from '../blocks/blocks'
+import { blocks } from '../blocks/blocks'
 import { getGeometryData } from './builder'
 import { TerrainGenerator } from './generator'
 
@@ -102,7 +102,7 @@ class Chunk {
                             addFace(x, y + 1, z),
                             addFace(x, y - 1, z),
                         ]
-                        const textures = blockTexturesLookup.get(blockNameLookup.get(block))[0]
+                        const textures = blocks[block].model.elements[0].textures
 
                         const data = getGeometryData(x, y, z, faces, textures, Chunk.atlasRanges)
 

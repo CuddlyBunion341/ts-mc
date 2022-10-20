@@ -1,4 +1,4 @@
-import { blockIDLookup } from '../blocks/blocks'
+import { blockIDs } from '../blocks/blocks'
 
 type GameMode = 'survival' | 'creative' | 'spectator'
 
@@ -21,7 +21,7 @@ class Player {
         const hotbar = ['stone', 'cobblestone', 'dirt', 'oak_log', 'oak_planks', 'glass']
 
         for (let i = 0; i < hotbar.length; i++) {
-            this.setItem(i, blockIDLookup.get(hotbar[i]), 10)
+            this.setItem(i, blockIDs.get(hotbar[i]), 10)
         }
     }
 

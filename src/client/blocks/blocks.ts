@@ -113,7 +113,6 @@ const blocks: Block[] = [
     new Block('glass', 0.3, new CubeAllModel('glass'), true),
 ]
 
-// ---- Lookup Tables --------------------------------------------------------------------
 const textures: string[] = []
 for (const block of blocks) {
     const elements = block.model.elements
@@ -124,28 +123,19 @@ for (const block of blocks) {
     }
 }
 
-const blockIDLookup = new Map()
-const blockNameLookup = new Map()
-const blockSidesLookup = new Map()
-const blockTexturesLookup = new Map()
+const blockIDs = new Map()
 
 for (const block of blocks) {
-    blockIDLookup.set(block.name, block.id)
-    blockNameLookup.set(block.id, block.name)
-    blockSidesLookup.set(block.name, block.model.solidSides)
-    blockTexturesLookup.set(
-        block.name,
-        block.model.elements.map((e) => e.textures)
-    )
+    blockIDs.set(block.name, block.id)
 }
 
 function setDrop(name: string, drop: string) {
-    const blockID = blockIDLookup.get(name)
-    const dropID = blockIDLookup.get(drop)
+    const blockID = blockIDs.get(name)
+    const dropID = blockIDs.get(drop)
 
     blocks[blockID].drops = [{ itemID: dropID, probability: 1 }]
 }
 setDrop('grass_block', 'dirt')
 setDrop('stone', 'cobblestone')
 
-export { blocks, textures, blockIDLookup, blockNameLookup, blockSidesLookup, blockTexturesLookup }
+export { blocks, textures, blockIDs }

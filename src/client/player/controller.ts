@@ -1,6 +1,6 @@
 import { Camera, Object3D, Raycaster, Vector2, Vector3 } from 'three'
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
-import { blockIDLookup, blockNameLookup, blocks } from '../blocks/blocks'
+import { blockIDs, blocks } from '../blocks/blocks'
 import { Terrain } from '../world/terrain'
 import { Outline } from './blockOutline'
 import { hud } from './hud'
@@ -52,7 +52,7 @@ class PlayerController {
         for (let i = 0; i < 9; i++) {
             const slot = this.player.getSlot(i)
             if (slot) {
-                hud.addItem(blockNameLookup.get(slot.itemID), i, slot.count)
+                hud.addItem(blocks[slot.itemID].name, i, slot.count)
             }
         }
     }
@@ -93,7 +93,7 @@ class PlayerController {
 
         // water
         const { x, y, z } = new Vector3().copy(this.camera.position).addScalar(0.5).floor()
-        if (this.terrain.getBlock(x, y, z) == blockIDLookup.get('water')) {
+        if (this.terrain.getBlock(x, y, z) == blockIDs.get('water')) {
             hud.showWaterOverlay()
         } else hud.hideWaterOverlay()
 
@@ -174,7 +174,7 @@ class PlayerController {
                 if (index < 9) {
                     const slot = this.player.getSlot(index)
 
-                    hud.replaceItem(index, blockNameLookup.get(slot.itemID), slot.count)
+                    hud.replaceItem(index, blocks[slot.itemID].name, slot.count)
                 }
             }
         }
