@@ -1,4 +1,4 @@
-# TS-MC
+# TS-MC <img align="left" height="40px" src="doc/ts-mc.png">
 
 A minecraft clone with TypeScript and Three.js
 
