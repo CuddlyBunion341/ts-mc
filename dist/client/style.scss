@@ -1,3 +1,11 @@
+@font-face {
+    font-family: minecraft;
+    src: url('MinecraftRegular-Bmg3.otf');
+}
+
+* {
+    box-sizing: border-box;
+}
 body {
     margin: 0;
 }
@@ -23,8 +31,7 @@ body {
     position: absolute;
     left: 50%;
     bottom: 40px;
-    transform: translate(-50%, 0);
-    transform: scale(3);
+    transform: translate(-50%, 0) scale(3);
 }
 .healthbar,
 .hungerbar {
@@ -79,7 +86,7 @@ body {
         bottom: 3px;
         left: 6px;
         color: white;
-        text-shadow: 1px 1px 0 rgb(23, 23, 23);
+        text-shadow: 0.5px 0.5px 0 #2e2e2e;
     }
     position: absolute;
     left: calc(4px + 20px * var(--index));
