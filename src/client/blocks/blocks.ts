@@ -139,4 +139,13 @@ for (const block of blocks) {
     )
 }
 
+function setDrop(name: string, drop: string) {
+    const blockID = blockIDLookup.get(name)
+    const dropID = blockIDLookup.get(drop)
+
+    blocks[blockID].drops = [{ itemID: dropID, probability: 1 }]
+}
+setDrop('grass_block', 'dirt')
+setDrop('stone', 'cobblestone')
+
 export { blocks, textures, blockIDLookup, blockNameLookup, blockSidesLookup, blockTexturesLookup }

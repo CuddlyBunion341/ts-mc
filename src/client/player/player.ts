@@ -43,6 +43,34 @@ class Player {
         if (index < 0 || index >= 27) return
         this.inventory[index].count = newCount
     }
+
+    updateItemCount(index: number, delta: number) {
+        const slot = this.getSlot(index)
+        const count = slot.count
+        slot.count = Math.max(slot.count + delta, 0)
+        return count
+    }
+
+    addItem(itemID: number, count: number) {
+        if (count <= 0) return []
+        const modifiedSlots: number[] = []
+
+        for (let i = 0; i < 27; i++) {
+            if (!this.getSlot(i)) {
+                this.setItem(i, itemID, 0)
+            }
+            if (this.getSlot(i).itemID == itemID) {
+                const c = this.getSlot(i).count
+                const diff = 64 - c
+                const heap = Math.min(count, diff)
+                count -= heap
+                this.getSlot(i).count += heap
+                modifiedSlots.push(i)
+                if (count == 0) break
+            }
+        }
+        return modifiedSlots
+    }
 }
 
 export { Player }

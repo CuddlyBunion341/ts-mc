@@ -62,7 +62,7 @@ class HudController {
         span.classList.add('count')
         item.appendChild(span)
 
-        this.itemContainer.appendChild(item)
+        return this.itemContainer.appendChild(item)
     }
 
     hideItem(index: number) {
@@ -77,7 +77,7 @@ class HudController {
 
     replaceItem(index: number, name: string, count: number) {
         const item = this.getItem(index)
-        if (!item) return
+        if (!item) return this.addItem(name, index, count)
 
         const span = item.querySelector('.count')!
         span.innerHTML = String(count)

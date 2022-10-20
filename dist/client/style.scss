@@ -48,6 +48,8 @@ body {
 .hungerbar {
     display: inline-flex;
     margin-bottom: 2px;
+    min-height: 9px;
+    min-width: 1px;
 }
 .healthbar {
     float: left;

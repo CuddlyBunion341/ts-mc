@@ -1,6 +1,6 @@
 import { Camera, Object3D, Raycaster, Vector2, Vector3 } from 'three'
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
-import { blockIDLookup, blockNameLookup } from '../blocks/blocks'
+import { blockIDLookup, blockNameLookup, blocks } from '../blocks/blocks'
 import { Terrain } from '../world/terrain'
 import { Outline } from './blockOutline'
 import { hud } from './hud'
@@ -146,15 +146,38 @@ class PlayerController {
         if (!pos) return
         const { x, y, z } = pos
         const slot = this.player.getSelectedSlot()
-        if (slot.count-- > 0) this.terrain.setBlock(x, y, z, slot.itemID, true)
         const index = this.player.selectedSlot
+        const count = this.player.updateItemCount(index, -1)
+        if (count > 0) this.terrain.setBlock(x, y, z, slot.itemID, true)
         hud.setItemCount(index, slot.count)
     }
     breakBlock() {
         const pos = this.castRay(true)
         if (!pos) return
         const { x, y, z } = pos
-        this.terrain.setBlock(x, y, z, 0, true)
+        const block = this.terrain.getBlock(x, y, z)
+        if (block) {
+            this.terrain.setBlock(x, y, z, 0, true)
+            const dropped = blocks[block].drops.reduce((acc: number[], v) => {
+                if (Math.random() <= v.probability) {
+                    acc.push(v.itemID)
+                }
+                return acc
+            }, [])
+
+            const modifiedSlots: number[] = []
+            for (const drop of dropped) {
+                modifiedSlots.push(...this.player.addItem(drop, 1))
+            }
+
+            for (const index of [...new Set(modifiedSlots)]) {
+                if (index < 9) {
+                    const slot = this.player.getSlot(index)
+
+                    hud.replaceItem(index, blockNameLookup.get(slot.itemID), slot.count)
+                }
+            }
+        }
     }
 }
 
