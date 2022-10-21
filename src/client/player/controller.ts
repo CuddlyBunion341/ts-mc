@@ -65,10 +65,12 @@ class PlayerController {
     onKeyDown(e: KeyboardEvent) {
         this.pressedKeys[e.code] = true
 
-        if (!isNaN(Number(e.key))) {
-            const slot = Number(e.key) - 1
+        let matches
+        if ((matches = /Digit(\d)/.exec(e.code))) {
+            const digit = Number(matches[1]) - 1
+            const slot = digit
             if (slot >= 0 && slot < 9) {
-                hud.setSelectedSlot(Number(e.key) - 1)
+                hud.setSelectedSlot(digit)
                 this.player.selectedSlot = slot
             }
         }
