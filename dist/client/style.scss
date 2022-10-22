@@ -44,12 +44,20 @@ body {
     bottom: 40px;
     transform: translate(-50%, 0) scale(3);
 }
+
+.bubblebar,
 .healthbar,
 .hungerbar {
     display: inline-flex;
     margin-bottom: 2px;
     min-height: 9px;
     min-width: 1px;
+}
+.bubblebar {
+    position: absolute;
+    margin-bottom: 20px;
+    bottom: 20px;
+    right: 0;
 }
 .healthbar {
     float: left;
@@ -76,6 +84,15 @@ body {
     }
     &.empty {
         content: url('gui/hud/hunger-empty.png');
+    }
+}
+
+.bubble {
+    margin-left: -1px;
+    content: url('gui/hud/bubble-full.png');
+
+    &.pop {
+        content: url('gui/hud/bubble-pop.png');
     }
 }
 

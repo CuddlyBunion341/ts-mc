@@ -63,7 +63,7 @@ class ParticleEmitter {
         this.camera = camera
         this.parent = parent
 
-        Particle.material = new MeshBasicMaterial({ map: this.texture })
+        Particle.material = new MeshBasicMaterial({ map: this.texture, transparent: true })
     }
 
     emitParticle(x: number, y: number, z: number, textureName: string) {

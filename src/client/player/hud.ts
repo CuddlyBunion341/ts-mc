@@ -64,8 +64,10 @@ class InventorySlot {
 
 class HudController {
     waterOverlay: HTMLImageElement
+    bubblebar: HTMLDivElement
     hearts: HTMLImageElement[]
     hunger: HTMLImageElement[]
+    bubbles: HTMLImageElement[]
     selectedSlot: HTMLImageElement
     itemContainer: HTMLDivElement
     slots: Array<InventorySlot | null>
@@ -77,6 +79,15 @@ class HudController {
 
         this.slots = Array(27).fill(null)
         InventorySlot.parentElement = this.itemContainer
+
+        this.bubblebar = document.querySelector('.bubblebar')!
+        this.bubbles = Array(10)
+            .fill(null)
+            .map(() => {
+                const bubble = document.createElement('img')
+                bubble.classList.add('bubble')
+                return this.bubblebar.appendChild(bubble)
+            })
 
         const healthbar = document.querySelector('.healthbar')!
         this.hearts = Array(10)
@@ -99,10 +110,12 @@ class HudController {
 
     showWaterOverlay() {
         this.waterOverlay.style.setProperty('display', 'block')
+        this.bubblebar.style.setProperty('display', 'inline-flex')
     }
 
     hideWaterOverlay() {
         this.waterOverlay.style.setProperty('display', 'none')
+        this.bubblebar.style.setProperty('display', 'none')
     }
 
     setSelectedSlot(index: number) {
