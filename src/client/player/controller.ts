@@ -1,6 +1,7 @@
 import { Camera, Object3D, Raycaster, Vector2, Vector3 } from 'three'
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
 import { blockIDs, blocks } from '../blocks/blocks'
+import { ParticleEmitter } from '../misc/particles'
 import { Terrain } from '../world/terrain'
 import { Outline } from './blockOutline'
 import { hud } from './hud'
@@ -21,7 +22,14 @@ class PlayerController {
     velocity: Vector3
     player: Player
     outline: Outline
-    constructor(camera: Camera, terrain: Terrain, chunkGroup: Object3D, outline: Outline) {
+    particleEmitter: ParticleEmitter
+    constructor(
+        camera: Camera,
+        terrain: Terrain,
+        chunkGroup: Object3D,
+        outline: Outline,
+        particleEmitter: ParticleEmitter
+    ) {
         this.terrain = terrain
         this.width = 0.6
         this.length = 0.6
@@ -36,6 +44,7 @@ class PlayerController {
         this.chunkGroup = chunkGroup
         this.outline = outline
         this.player = new Player()
+        this.particleEmitter = particleEmitter
 
         // place player
         while (true) {
@@ -52,7 +61,7 @@ class PlayerController {
         for (let i = 0; i < 9; i++) {
             const slot = this.player.getSlot(i)
             if (slot) {
-                hud.addItem(blocks[slot.itemID].name, i, slot.count)
+                hud.replaceSlot(i, blocks[slot.itemID].name, slot.count)
             }
         }
     }
@@ -77,6 +86,27 @@ class PlayerController {
     }
     onKeyUp(e: KeyboardEvent) {
         this.pressedKeys[e.code] = false
+    }
+
+    move(dx: number, dy: number, dz: number) {
+        let { x, y, z } = this.camera.position
+        let newPos = { x, y, z }
+
+        const floor = (x: number, y: number, z: number) => new Vector3(x, y, z).floor().toArray()
+
+        if (this.terrain.getBlock(...floor(x + dx, y, z)) == 0) {
+            newPos.x += dx
+        }
+
+        if (this.terrain.getBlock(...floor(x, y + dy, z)) == 0) {
+            newPos.y += dy
+        }
+
+        if (this.terrain.getBlock(...floor(x, y, z + dz)) == 0) {
+            newPos.z += dz
+        }
+
+        this.camera.position.set(newPos.x, newPos.y, newPos.z)
     }
 
     update(delta: number) {
@@ -128,6 +158,8 @@ class PlayerController {
                 }
             }
         }
+
+        this.particleEmitter.update(delta)
     }
 
     testCollision(dx: number, dy: number, dz: number) {
@@ -148,10 +180,13 @@ class PlayerController {
         if (!pos) return
         const { x, y, z } = pos
         const slot = this.player.getSelectedSlot()
-        const index = this.player.selectedSlot
-        const count = this.player.updateItemCount(index, -1)
-        if (count > 0) this.terrain.setBlock(x, y, z, slot.itemID, true)
-        hud.setItemCount(index, slot.count)
+        if (!slot) return
+
+        this.terrain.setBlock(x, y, z, slot.itemID, true)
+
+        const count = this.player.updateItemCount(slot.index, -1)
+
+        hud.replaceSlot(slot.index, blocks[slot.itemID].name, count)
     }
     breakBlock() {
         const pos = this.castRay(true)
@@ -167,17 +202,23 @@ class PlayerController {
                 return acc
             }, [])
 
-            const modifiedSlots: number[] = []
             for (const drop of dropped) {
-                modifiedSlots.push(...this.player.addItem(drop, 1))
+                const index = this.player.addItem(drop) || 0
+                if (index < 9 && index >= 0) {
+                    const slot = this.player.getSlot(index)
+                    if (slot) hud.replaceSlot(index, blocks[slot.itemID].name, slot.count)
+                }
             }
 
-            for (const index of [...new Set(modifiedSlots)]) {
-                if (index < 9) {
-                    const slot = this.player.getSlot(index)
-
-                    hud.replaceItem(index, blocks[slot.itemID].name, slot.count)
-                }
+            // emit particles
+            for (let i = 0; i < 10; i++) {
+                const [px, py, pz] = [
+                    x + Math.random() - 0.5,
+                    y + Math.random() - 0.5,
+                    z + Math.random() - 0.5,
+                ]
+                const texture = blocks[block].model.elements[0].textures[0]
+                this.particleEmitter.emitParticle(px, py, pz, texture)
             }
         }
     }

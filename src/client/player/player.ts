@@ -3,6 +3,7 @@ import { blockIDs } from '../blocks/blocks'
 type GameMode = 'survival' | 'creative' | 'spectator'
 
 interface Slot {
+    index: number
     count: number
     itemID: number
 }
@@ -10,7 +11,7 @@ interface Slot {
 class Player {
     gamemode: GameMode
     health: number
-    inventory: Slot[]
+    inventory: Array<Slot | null>
     selectedSlot: number
     constructor() {
         this.gamemode = 'survival'
@@ -33,22 +34,37 @@ class Player {
         return this.inventory[this.selectedSlot]
     }
 
-    setItem(index: number, itemID: number, count: number) {
-        if (index < 0 || index >= 27) return
-        const value = { itemID, count }
-        this.inventory[index] = value
+    setItem(index: number, itemID: number, count: number): Slot | null {
+        if (index < 0 || index >= 27) return null
+        const slot = { itemID, count, index }
+        return (this.inventory[index] = slot)
     }
 
     setItemCount(index: number, newCount: number) {
-        if (index < 0 || index >= 27) return
-        this.inventory[index].count = newCount
+        if (index < 0 || index >= 27) return null
+
+        if (newCount <= 0) {
+            return (this.inventory[index] = null)
+        }
+
+        const slot = this.inventory[index]
+        if (!slot) return null
+        slot.count = newCount
+
+        return slot
     }
 
     updateItemCount(index: number, delta: number) {
         const slot = this.getSlot(index)
-        const count = slot.count
-        slot.count = Math.max(slot.count + delta, 0)
-        return count
+        if (!slot) return 0
+
+        slot.count = slot.count + delta
+
+        if (slot.count == 0) {
+            this.inventory[index] = null
+        }
+
+        return slot.count || 0
     }
 
     addItem(itemID: number) {
@@ -57,9 +73,11 @@ class Player {
                 this.setItem(i, itemID, 1)
                 return i
             }
-            if (this.getSlot(i).itemID == itemID) {
-                if (this.getSlot(i).count < 64) {
-                    this.getSlot(i).count++
+            const slot = this.getSlot(i)
+            if (!slot) return
+            if (slot.itemID == itemID) {
+                if (slot.count < 64) {
+                    slot.count++
                     return i
                 }
             }
@@ -72,15 +90,13 @@ class Player {
         const modifiedSlots: number[] = []
 
         for (let i = 0; i < 27; i++) {
-            if (!this.getSlot(i)) {
-                this.setItem(i, itemID, 0)
-            }
-            if (this.getSlot(i).itemID == itemID) {
-                const c = this.getSlot(i).count
+            const slot = this.getSlot(i) || this.setItem(i, itemID, 0)
+            if (slot && slot.itemID == itemID) {
+                const c = slot.count
                 const diff = 64 - c
                 const heap = Math.min(count, diff)
                 count -= heap
-                this.getSlot(i).count += heap
+                slot.count += heap
                 modifiedSlots.push(i)
                 if (count == 0) break
             }

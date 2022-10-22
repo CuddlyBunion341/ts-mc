@@ -111,6 +111,12 @@ class HudController {
     }
 
     replaceSlot(index: number, name: string, count: number) {
+        if (count <= 0) {
+            this.slots[index]?.remove()
+            this.slots[index] = null
+            return null
+        }
+
         let slot
         if ((slot = this.getSlot(index))) {
             slot.name = name
