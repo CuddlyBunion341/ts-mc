@@ -69,17 +69,18 @@ class Player {
 
     addItem(itemID: number) {
         for (let i = 0; i < 27; i++) {
-            if (!this.getSlot(i)) {
-                this.setItem(i, itemID, 1)
-                return i
-            }
             const slot = this.getSlot(i)
-            if (!slot) return
-            if (slot.itemID == itemID) {
+            if (slot && slot.itemID == itemID) {
                 if (slot.count < 64) {
                     slot.count++
                     return i
                 }
+            }
+        }
+        for (let i = 0; i < 27; i++) {
+            if (!this.getSlot(i)) {
+                this.setItem(i, itemID, 1)
+                return i
             }
         }
         return -1
@@ -97,6 +98,16 @@ class Player {
                 const heap = Math.min(count, diff)
                 count -= heap
                 slot.count += heap
+                modifiedSlots.push(i)
+                if (count == 0) break
+            }
+        }
+
+        for (let i = 0; i < 27; i++) {
+            if (!this.getSlot(i)) {
+                const heap = Math.min(64, count)
+                count -= heap
+                this.setItem(i, itemID, heap)
                 modifiedSlots.push(i)
                 if (count == 0) break
             }
