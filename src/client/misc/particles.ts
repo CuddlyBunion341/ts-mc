@@ -15,15 +15,14 @@ import { Atlas, AtlasRange, AtlasRanges } from '../blocks/atlas'
 class Particle {
     mesh: Mesh
     velocity: Vector3
-    material: Material
     age: number
     alive: boolean
-    constructor(x: number, y: number, z: number, range: AtlasRange, texture: Texture) {
+    static material: Material
+    constructor(x: number, y: number, z: number, range: AtlasRange) {
         this.age = 0
         this.velocity = new Vector3(Math.random() * 5 - 2.5, 0, Math.random() * 5 - 2.5)
 
-        const material = new MeshBasicMaterial({ map: texture })
-        const sprite = new Mesh(new PlaneGeometry(0.2, 0.2, 1, 1), material)
+        const sprite = new Mesh(new PlaneGeometry(0.2, 0.2, 1, 1), Particle.material)
 
         const { u1, u2, v1, v2 } = range
 
@@ -32,13 +31,11 @@ class Particle {
         this.alive = true
         sprite.position.set(x, y, z)
         this.mesh = sprite
-        this.material = material
     }
     update(delta: number, quaternion: Quaternion) {
         if (!this.alive) return
         if (this.age >= 2) {
             this.mesh.removeFromParent()
-            this.material.dispose()
             this.alive = false
             return
         }
@@ -65,6 +62,8 @@ class ParticleEmitter {
         this.particles = []
         this.camera = camera
         this.parent = parent
+
+        Particle.material = new MeshBasicMaterial({ map: this.texture })
     }
 
     emitParticle(x: number, y: number, z: number, textureName: string) {
@@ -73,12 +72,13 @@ class ParticleEmitter {
         range.u2 -= 1 / this.size / 2
         range.v2 += 1 / this.size / 2
 
-        const particle = new Particle(x, y, z, range, this.texture)
+        const particle = new Particle(x, y, z, range)
         this.parent.add(particle.mesh)
         this.particles.push(particle)
     }
 
     update(delta: number) {
+        this.particles = this.particles.filter((p) => p.alive)
         for (const particle of this.particles) {
             particle.update(delta, this.camera.quaternion)
         }
