@@ -91,8 +91,8 @@ class Player {
         const modifiedSlots: number[] = []
 
         for (let i = 0; i < 27; i++) {
-            const slot = this.getSlot(i) || this.setItem(i, itemID, 0)
-            if (slot && slot.itemID == itemID) {
+            const slot = this.getSlot(i)
+            if (slot?.itemID == itemID) {
                 const c = slot.count
                 const diff = 64 - c
                 const heap = Math.min(count, diff)
