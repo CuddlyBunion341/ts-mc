@@ -108,4 +108,4 @@ class Atlas {
     }
 }
 
-export { Atlas, AtlasRanges }
+export { Atlas, AtlasRanges, AtlasRange }

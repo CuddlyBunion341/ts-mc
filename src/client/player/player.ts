@@ -51,7 +51,23 @@ class Player {
         return count
     }
 
-    addItem(itemID: number, count: number) {
+    addItem(itemID: number) {
+        for (let i = 0; i < 27; i++) {
+            if (!this.getSlot(i)) {
+                this.setItem(i, itemID, 1)
+                return i
+            }
+            if (this.getSlot(i).itemID == itemID) {
+                if (this.getSlot(i).count < 64) {
+                    this.getSlot(i).count++
+                    return i
+                }
+            }
+        }
+        return -1
+    }
+
+    addItems(itemID: number, count: number) {
         if (count <= 0) return []
         const modifiedSlots: number[] = []
 

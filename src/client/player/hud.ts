@@ -1,14 +1,82 @@
+class InventorySlot {
+    private _index: number
+    private _count: number
+    private _name: string
+
+    container: HTMLDivElement
+    image: HTMLImageElement
+    span: HTMLSpanElement
+
+    static parentElement: HTMLElement
+    constructor(index: number, name: string, count: number) {
+        this._index = index
+        this._name = name
+        this._count = count
+
+        this.container = document.createElement('div')
+        this.container.classList.add('item')
+        this.image = document.createElement('img')
+        this.span = document.createElement('span')
+        this.span.classList.add('count')
+
+        this.index = index
+        this.name = name
+        this.count = count
+
+        this.container.appendChild(this.image)
+        this.container.appendChild(this.span)
+
+        InventorySlot.parentElement.appendChild(this.container)
+    }
+
+    remove() {
+        const parent = this.container.parentElement!
+        parent.removeChild(this.container)
+    }
+
+    set count(count: number) {
+        this._count = count
+        this.span.innerHTML = String(count)
+    }
+
+    set index(index: number) {
+        this._index = index
+        this.container.style.setProperty('--index', String(index))
+    }
+
+    set name(name: string) {
+        this._name = name
+        this.image.src = `textures/items/${name}.webp`
+    }
+
+    get count() {
+        return this._count
+    }
+
+    get index() {
+        return this._index
+    }
+
+    get name() {
+        return this._name
+    }
+}
+
 class HudController {
-    waterOverlay: HTMLElement
-    hearts: HTMLElement[]
-    hunger: HTMLElement[]
-    selectedSlot: HTMLElement
-    itemContainer: HTMLElement
+    waterOverlay: HTMLImageElement
+    hearts: HTMLImageElement[]
+    hunger: HTMLImageElement[]
+    selectedSlot: HTMLImageElement
+    itemContainer: HTMLDivElement
+    slots: Array<InventorySlot | null>
 
     constructor() {
         this.waterOverlay = document.querySelector('.water-overlay')!
         this.selectedSlot = document.querySelector('.selected')!
         this.itemContainer = document.querySelector('.items')!
+
+        this.slots = Array(27).fill(null)
+        InventorySlot.parentElement = this.itemContainer
 
         const healthbar = document.querySelector('.healthbar')!
         this.hearts = Array(10)
@@ -42,76 +110,29 @@ class HudController {
         this.selectedSlot.style.setProperty('--index', String(index))
     }
 
-    getItem(index: number): HTMLElement | null {
-        return document.querySelector(`.item[data-index='${index}']`)
-    }
-
-    // Items
-    addItem(itemName: string, index: number, count: number) {
-        const item = document.createElement('div')
-        item.classList.add('item')
-        item.style.setProperty('--index', String(index))
-        item.dataset.index = String(index)
-
-        const img = document.createElement('img')
-        img.src = `textures/items/${itemName}.webp`
-        item.appendChild(img)
-
-        const span = document.createElement('span')
-        span.innerHTML = String(count)
-        span.classList.add('count')
-        item.appendChild(span)
-
-        return this.itemContainer.appendChild(item)
-    }
-
-    hideItem(index: number) {
-        const item = this.getItem(index)
-        item?.style.setProperty('display', 'none')
-    }
-
-    showItem(index: number) {
-        const item = this.getItem(index)
-        item?.style.setProperty('display', 'block')
-    }
-
-    replaceItem(index: number, name: string, count: number) {
-        const item = this.getItem(index)
-        if (!item) return this.addItem(name, index, count)
-
-        const span = item.querySelector('.count')!
-        span.innerHTML = String(count)
-
-        const img = item.querySelector('img')!
-        img.src = `textures/items/${name}.webp`
-    }
-
-    setItemName(index: number, name: string) {
-        const item = this.getItem(index)
-        if (!item) return
-
-        const img = item.querySelector('img')!
-        img.src = `textures/items/${name}.webp`
-    }
-
-    setItemCount(index: number, count: number) {
-        const item = this.getItem(index)
-        if (!item) return
-
-        if (count <= 0) {
-            item.parentElement?.removeChild(item)
+    replaceSlot(index: number, name: string, count: number) {
+        let slot
+        if ((slot = this.getSlot(index))) {
+            slot.name = name
+            slot.count = count
+        } else {
+            slot = new InventorySlot(index, name, count)
+            this.slots[index] = slot
         }
-
-        const span = item.querySelector('.count')!
-        span.innerHTML = String(count)
+        return slot
     }
 
-    setItemIndex(index: number, newIndex: number) {
-        const item = this.getItem(index)
-        if (!item) return
+    moveSlot(index: number, newIndex: number) {
+        if (index == newIndex) return
+        const slot = this.getSlot(index)
+        if (!slot) return
+        slot.index = newIndex
+        this.slots[index] = null
+        this.slots[newIndex] = slot
+    }
 
-        item.style.setProperty('index', String(newIndex))
-        item.dataset.index = String(newIndex)
+    getSlot(index: number) {
+        return this.slots[index]
     }
 }
 

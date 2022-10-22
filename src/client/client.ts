@@ -11,6 +11,7 @@ import {
 import Stats from 'three/examples/jsm/libs/stats.module'
 import { Atlas } from './blocks/atlas'
 import { textures } from './blocks/blocks'
+import { ParticleEmitter } from './misc/particles'
 import { Outline } from './player/blockOutline'
 import { PlayerController } from './player/controller'
 import { Chunk } from './world/chunk'
@@ -70,11 +71,13 @@ renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setPixelRatio(devicePixelRatio)
 document.body.appendChild(renderer.domElement)
 
+const particleEmitter = new ParticleEmitter(atlas, scene, camera)
+
 const outline = new Outline()
 scene.add(outline.mesh)
 scene.add(outline.helper)
 
-const player = new PlayerController(camera, terrain, chunkGroup, outline)
+const player = new PlayerController(camera, terrain, chunkGroup, outline, particleEmitter)
 document.addEventListener('keydown', (e) => player.onKeyDown(e))
 document.addEventListener('mousedown', (e) => player.onMouseDown(e))
 document.addEventListener('mouseup', (e) => player.onMouseUp(e))
