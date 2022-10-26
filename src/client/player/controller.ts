@@ -5,7 +5,7 @@ import { ParticleEmitter } from '../misc/particles'
 import { Terrain } from '../world/terrain'
 import { Outline } from './blockOutline'
 import { hud } from './hud'
-import { Player } from './player'
+import { GameMode, Player } from './player'
 
 class PlayerController {
     private terrain: Terrain
@@ -13,6 +13,7 @@ class PlayerController {
     private raycaster: Raycaster
     private chunkGroup: any
     private lastChunk: { x: number; z: number }
+
     width: number
     length: number
     height: number
@@ -23,6 +24,7 @@ class PlayerController {
     player: Player
     outline: Outline
     particleEmitter: ParticleEmitter
+
     constructor(
         camera: Camera,
         terrain: Terrain,
@@ -172,6 +174,19 @@ class PlayerController {
         if (intersect?.face) {
             const norm = intersect.face.normal.divideScalar(2).multiplyScalar(inside ? -1 : 1)
             return new Vector3().copy(intersect.point).add(norm).addScalar(0.5).floor()
+        }
+    }
+
+    get gamemode() {
+        return this.player.gamemode
+    }
+
+    set gamemode(gamemode: GameMode) {
+        this.player.gamemode = gamemode
+        if (gamemode != 'survival') {
+            hud.hideSurvivalHUD()
+        } else {
+            hud.showSurvivalHUD()
         }
     }
 

@@ -14,7 +14,7 @@ import { textures } from './blocks/blocks'
 import { ParticleEmitter } from './misc/particles'
 import { Outline } from './player/blockOutline'
 import { PlayerController } from './player/controller'
-import { Chunk } from './world/chunk'
+import { ChunkFactory } from './world/chunk'
 import { Terrain } from './world/terrain'
 
 const scene = new Scene()
@@ -23,25 +23,21 @@ scene.fog = new Fog(0xf0f0f0, 64, 300)
 
 const chunkGroup = new Group()
 scene.add(chunkGroup)
-Chunk.parentGroup = chunkGroup
 
 const atlas = new Atlas(textures)
-Chunk.atlasRanges = atlas.ranges
 
-const material = new MeshBasicMaterial({ map: atlas.texture, vertexColors: true })
-const material2 = new MeshBasicMaterial({
-    map: atlas.texture,
-    vertexColors: true,
-    transparent: true,
-    opacity: 0.8,
-})
-Chunk.material2 = material2
-Chunk.material = material
+const materialOptions = { map: atlas.texture, vertexColors: true }
+const material1 = new MeshBasicMaterial(materialOptions)
+const material2 = new MeshBasicMaterial({ ...materialOptions, transparent: true, opacity: 0.8 })
 
-const terrain = new Terrain()
+const factory = new ChunkFactory(chunkGroup, atlas.ranges, material1, material2)
+
+const terrain = new Terrain(factory)
+
 const renderDistance = 16
 
 console.time('Chunk generation')
+// todo: move to terrain class
 for (let i = -1; i <= renderDistance; i++) {
     for (let j = -1; j <= renderDistance; j++) {
         terrain.createChunk(i, j)
@@ -71,11 +67,11 @@ renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setPixelRatio(devicePixelRatio)
 document.body.appendChild(renderer.domElement)
 
-const particleEmitter = new ParticleEmitter(atlas, scene, camera)
-
 const outline = new Outline()
 scene.add(outline.mesh)
 scene.add(outline.helper)
+
+const particleEmitter = new ParticleEmitter(atlas, scene, camera)
 
 const player = new PlayerController(camera, terrain, chunkGroup, outline, particleEmitter)
 document.addEventListener('keydown', (e) => player.onKeyDown(e))
@@ -84,13 +80,12 @@ document.addEventListener('mouseup', (e) => player.onMouseUp(e))
 document.addEventListener('keydown', (e) => player.onKeyDown(e))
 document.addEventListener('keyup', (e) => player.onKeyUp(e))
 
-window.addEventListener('resize', onWindowResize, false)
-function onWindowResize() {
+window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight
     camera.updateProjectionMatrix()
     renderer.setSize(window.innerWidth, window.innerHeight)
     render()
-}
+})
 
 const stats = Stats()
 document.body.appendChild(stats.dom)
@@ -107,4 +102,5 @@ function animate() {
 function render() {
     renderer.render(scene, camera)
 }
+
 animate()

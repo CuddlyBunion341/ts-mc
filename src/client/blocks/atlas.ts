@@ -36,7 +36,7 @@ class Atlas {
         return size
     }
 
-    static calculateRanges(textureNames: string[], size: number) {
+    static calculateRanges(textureNames: string[], size: number): AtlasRanges {
         const positions: AtlasRanges = new Map()
         const frac = 1 / size
         for (let i = 0; i < textureNames.length; i++) {

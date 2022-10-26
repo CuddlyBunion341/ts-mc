@@ -1,19 +1,24 @@
-import { Chunk } from './chunk'
+import { Chunk, ChunkFactory } from './chunk'
 import { TerrainGenerator } from './generator'
 
 class Terrain {
     chunks: Map<string, Chunk>
+    generator: TerrainGenerator
+    chunkFactory: ChunkFactory
 
-    constructor(seed: number = 69420) {
+    constructor(chunkFactory: ChunkFactory, seed: number = 69420) {
         const generator = new TerrainGenerator(seed)
-        Chunk.generator = generator
+        this.generator = generator
+        this.chunkFactory = chunkFactory
         this.chunks = new Map()
     }
 
     createChunk(x: number, z: number) {
         if (this.getChunk(x, z)) return
-        const chunk = new Chunk(x, z)
+        const chunk = this.chunkFactory.createChunk(x, z)
         this.chunks.set(Terrain.key(x, z), chunk)
+
+        this.generator.generate(chunk)
 
         return chunk
     }

@@ -4,6 +4,13 @@ import { blocks } from '../blocks/blocks'
 import { getGeometryData } from './builder'
 import { TerrainGenerator } from './generator'
 
+interface ChunkOptions {
+    material1: Material
+    material2: Material
+    parentGroup: Group
+    ranges: AtlasRanges
+}
+
 class Chunk {
     x: number
     z: number
@@ -12,20 +19,23 @@ class Chunk {
     neighbors!: Chunk[]
     isModified: boolean
 
-    static parentGroup: Group
-    static material: Material
-    static material2: Material
-    static generator: TerrainGenerator
-    static atlasRanges: AtlasRanges
+    // set by factory
+    private parentGroup: Group
+    private atlasRanges: AtlasRanges
+    private material1: Material
+    private material2: Material
 
-    constructor(x: number, z: number) {
+    constructor(x: number, z: number, options: ChunkOptions) {
         this.x = x
         this.z = z
         this.subchunks = Array(16)
         this.meshes = []
         this.isModified = false
 
-        Chunk.generator.generate(this)
+        this.material1 = options.material1
+        this.material2 = options.material2
+        this.atlasRanges = options.ranges
+        this.parentGroup = options.parentGroup
     }
 
     get(x: number, y: number, z: number): number {
@@ -57,6 +67,14 @@ class Chunk {
         if (x == 15) this.neighbors[2].build()
         if (z == 15) this.neighbors[0].build()
         this.build()
+    }
+
+    blockUpdate(x: number, y: number, z: number) {
+        const block = this.get(x, y, z)
+        if (!block) return
+
+        if (blocks[block].hasGravity) {
+        }
     }
 
     setNeigbors(north?: Chunk, south?: Chunk, east?: Chunk, west?: Chunk) {
@@ -104,7 +122,7 @@ class Chunk {
                         ]
                         const textures = blocks[block].model.elements[0].textures
 
-                        const data = getGeometryData(x, y, z, faces, textures, Chunk.atlasRanges)
+                        const data = getGeometryData(x, y, z, faces, textures, this.atlasRanges)
 
                         if (transparent) {
                             positions2.push(...data.positions)
@@ -130,6 +148,7 @@ class Chunk {
         ) => {
             geometry.setAttribute(name, new BufferAttribute(new Float32Array(arr), size))
         }
+
         {
             const geometry = new BufferGeometry()
             setAttribute(geometry, 'position', positions, 3)
@@ -137,10 +156,10 @@ class Chunk {
             setAttribute(geometry, 'uv', uvs, 2)
             setAttribute(geometry, 'color', colors, 3)
 
-            const mesh = new Mesh(geometry, Chunk.material)
+            const mesh = new Mesh(geometry, this.material1)
             mesh.position.set(this.x * 16, 0, this.z * 16)
+            this.parentGroup.add(mesh)
             this.meshes.push(mesh)
-            Chunk.parentGroup.add(mesh)
         }
         {
             const geometry = new BufferGeometry()
@@ -149,10 +168,10 @@ class Chunk {
             setAttribute(geometry, 'uv', uvs2, 2)
             setAttribute(geometry, 'color', colors2, 3)
 
-            const mesh = new Mesh(geometry, Chunk.material2)
+            const mesh = new Mesh(geometry, this.material2)
             mesh.position.set(this.x * 16, 0, this.z * 16)
+            this.parentGroup.add(mesh)
             this.meshes.push(mesh)
-            Chunk.parentGroup.add(mesh)
         }
     }
 
@@ -164,4 +183,28 @@ class Chunk {
     }
 }
 
-export { Chunk }
+class ChunkFactory {
+    chunkGroup: Group
+    chunkMaterial: Material
+    chunkTransparentMaterial: Material
+    atlasRanges: AtlasRanges
+
+    constructor(chunkGroup: Group, ranges: AtlasRanges, material1: Material, material2: Material) {
+        this.chunkGroup = chunkGroup
+        this.chunkMaterial = material1
+        this.chunkTransparentMaterial = material2
+        this.atlasRanges = ranges
+    }
+
+    createChunk(x: number, z: number) {
+        const chunk = new Chunk(x, z, {
+            material1: this.chunkMaterial,
+            material2: this.chunkTransparentMaterial,
+            parentGroup: this.chunkGroup,
+            ranges: this.atlasRanges,
+        })
+        return chunk
+    }
+}
+
+export { Chunk, ChunkFactory }
