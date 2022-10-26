@@ -116,4 +116,4 @@ class Player {
     }
 }
 
-export { Player }
+export { Player, GameMode }

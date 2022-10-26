@@ -65,6 +65,8 @@ class InventorySlot {
 class HudController {
     waterOverlay: HTMLImageElement
     bubblebar: HTMLDivElement
+    hungerbar: HTMLDivElement
+    healthbar: HTMLDivElement
     hearts: HTMLImageElement[]
     hunger: HTMLImageElement[]
     bubbles: HTMLImageElement[]
@@ -89,23 +91,35 @@ class HudController {
                 return this.bubblebar.appendChild(bubble)
             })
 
-        const healthbar = document.querySelector('.healthbar')!
+        this.healthbar = document.querySelector('.healthbar')!
         this.hearts = Array(10)
             .fill(null)
             .map(() => {
                 const heart = document.createElement('img')
                 heart.classList.add('heart')
-                return healthbar.appendChild(heart)
+                return this.healthbar.appendChild(heart)
             })
 
-        const hungerbar = document.querySelector('.hungerbar')!
+        this.hungerbar = document.querySelector('.hungerbar')!
         this.hunger = Array(10)
             .fill(null)
             .map(() => {
                 const food = document.createElement('img')
                 food.classList.add('hunger')
-                return hungerbar.appendChild(food)
+                return this.hungerbar.appendChild(food)
             })
+    }
+
+    showSurvivalHUD() {
+        this.bubblebar.style.display = 'inline-flex'
+        this.healthbar.style.display = 'inline-flex'
+        this.hungerbar.style.display = 'inline-flex'
+    }
+
+    hideSurvivalHUD() {
+        this.bubblebar.style.display = 'none'
+        this.healthbar.style.display = 'none'
+        this.hungerbar.style.display = 'none'
     }
 
     showWaterOverlay() {
