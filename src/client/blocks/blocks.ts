@@ -21,6 +21,7 @@ class Block {
     hardness: number
     drops: BlockDrop[]
     transparent: boolean
+    hasGravity: boolean
 
     static blockCount = 0
     model: BlockModel
@@ -33,6 +34,7 @@ class Block {
         this.hardness = hardness
         this.model = model
         this.transparent = transparent
+        this.hasGravity = false
     }
 }
 
@@ -108,9 +110,9 @@ const blocks: Block[] = [
     new Block('Oak Planks', 2, new CubeAllModel('oak_planks')),
     new Block('Oak Log', 2, new TopSideModel('oak_log_top', 'oak_log')),
     new Block('Bedrock', 100, new CubeAllModel('bedrock')),
-    new Block('sand', 0.5, new CubeAllModel('sand')),
-    new Block('water', 100, new CubeAllModel('water'), true),
-    new Block('glass', 0.3, new CubeAllModel('glass'), true),
+    new Block('Sand', 0.5, new CubeAllModel('sand')),
+    new Block('Water', 100, new CubeAllModel('water'), true),
+    new Block('Glass', 0.3, new CubeAllModel('glass'), true),
 ]
 
 const textures: string[] = []
@@ -135,6 +137,7 @@ function setDrop(name: string, drop: string) {
 
     blocks[blockID].drops = [{ itemID: dropID, probability: 1 }]
 }
+
 setDrop('grass_block', 'dirt')
 setDrop('stone', 'cobblestone')
 

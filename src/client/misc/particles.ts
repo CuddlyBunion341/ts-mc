@@ -25,9 +25,9 @@ class Particle {
         const sprite = new Mesh(new PlaneGeometry(0.2, 0.2, 1, 1), Particle.material)
 
         const { u1, u2, v1, v2 } = range
-
         const uvs = [u1, v1, u2, v1, u1, v2, u2, v2, u2, v1, u1, v1]
         sprite.geometry.setAttribute('uv', new BufferAttribute(new Float32Array(uvs), 2))
+
         this.alive = true
         sprite.position.set(x, y, z)
         this.mesh = sprite
