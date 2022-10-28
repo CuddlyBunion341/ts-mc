@@ -1,11 +1,21 @@
-import { Camera, Object3D, Raycaster, Vector2, Vector3 } from 'three'
+import { Camera, Object3D, Raycaster, Vector2, Vector3, WebGLObjects } from 'three'
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
-import { blockIDs, blocks } from '../blocks/blocks'
+import { blockIDs, blocks, BlockSound } from '../blocks/blocks'
 import { ParticleEmitter } from '../misc/particles'
+import { SoundPlayer } from '../misc/soundPlayer'
 import { Terrain } from '../world/terrain'
 import { Outline } from './blockOutline'
 import { hud } from './hud'
 import { GameMode, Player } from './player'
+
+interface PlayerOptions {
+    camera: Camera
+    terrain: Terrain
+    chunkGroup: Object3D
+    outline: Outline
+    particleEmitter: ParticleEmitter
+    soundPlayer: SoundPlayer
+}
 
 class PlayerController {
     private terrain: Terrain
@@ -13,6 +23,9 @@ class PlayerController {
     private raycaster: Raycaster
     private chunkGroup: any
     private lastChunk: { x: number; z: number }
+    private outline: Outline
+    private particleEmitter: ParticleEmitter
+    private soundPlayer: SoundPlayer
 
     width: number
     length: number
@@ -22,31 +35,29 @@ class PlayerController {
     controls: PointerLockControls
     velocity: Vector3
     player: Player
-    outline: Outline
-    particleEmitter: ParticleEmitter
 
-    constructor(
-        camera: Camera,
-        terrain: Terrain,
-        chunkGroup: Object3D,
-        outline: Outline,
-        particleEmitter: ParticleEmitter
-    ) {
-        this.terrain = terrain
+    constructor(options: PlayerOptions) {
+        const { camera, terrain, chunkGroup, outline, particleEmitter, soundPlayer } = options
+
         this.width = 0.6
         this.length = 0.6
         this.height = 1.8
+
+        this.terrain = terrain
         this.movementSpeed = 20
         this.pressedKeys = {}
         this.camera = camera
         this.velocity = new Vector3(0, 0, 0)
+
         this.controls = new PointerLockControls(camera, document.body)
         document.body.addEventListener('click', () => this.controls.lock())
+
         this.raycaster = new Raycaster()
         this.chunkGroup = chunkGroup
         this.outline = outline
         this.player = new Player()
         this.particleEmitter = particleEmitter
+        this.soundPlayer = soundPlayer
 
         // place player
         while (true) {
@@ -88,6 +99,11 @@ class PlayerController {
     }
     onKeyUp(e: KeyboardEvent) {
         this.pressedKeys[e.code] = false
+    }
+
+    onWheel(e: WheelEvent) {
+        const slot = (this.player.selectedSlot += e.deltaY > 0 ? 1 : -1 % 9)
+        hud.setSelectedSlot(slot)
     }
 
     move(dx: number, dy: number, dz: number) {
@@ -197,12 +213,23 @@ class PlayerController {
         const slot = this.player.getSelectedSlot()
         if (!slot) return
 
+        this.playSound(blocks[slot.itemID].soundGroup)
+
         this.terrain.setBlock(x, y, z, slot.itemID, true)
 
         const count = this.player.updateItemCount(slot.index, -1)
 
         hud.replaceSlot(slot.index, blocks[slot.itemID].name, count)
     }
+
+    playSound(sound: BlockSound) {
+        if (sound == 'none') return
+
+        let index = Math.floor(Math.random() * 4) + 1
+        let soundName = `${sound}${index}`
+        this.soundPlayer.playSound(soundName)
+    }
+
     breakBlock() {
         const pos = this.castRay(true)
         if (!pos) return
@@ -216,6 +243,8 @@ class PlayerController {
                 }
                 return acc
             }, [])
+
+            this.playSound(blocks[block].soundGroup)
 
             for (const drop of dropped) {
                 const index = this.player.addItem(drop) || 0

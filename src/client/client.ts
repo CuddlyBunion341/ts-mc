@@ -10,8 +10,9 @@ import {
 } from 'three'
 import Stats from 'three/examples/jsm/libs/stats.module'
 import { Atlas } from './blocks/atlas'
-import { textures } from './blocks/blocks'
+import { blockSounds, textures } from './blocks/blocks'
 import { ParticleEmitter } from './misc/particles'
+import { SoundPlayer } from './misc/soundPlayer'
 import { Outline } from './player/blockOutline'
 import { PlayerController } from './player/controller'
 import { ChunkFactory } from './world/chunk'
@@ -73,12 +74,32 @@ scene.add(outline.helper)
 
 const particleEmitter = new ParticleEmitter(atlas, scene, camera)
 
-const player = new PlayerController(camera, terrain, chunkGroup, outline, particleEmitter)
+const soundPlayer = new SoundPlayer('/sounds/', '.ogg')
+const soundFiles = blockSounds.reduce((names: string[], current) => {
+    if (current == 'none') return names
+    for (let i = 1; i <= 4; i++) {
+        names.push(`${current}${i}`)
+    }
+    return names
+}, [])
+soundPlayer.load(soundFiles)
+console.log(soundPlayer)
+
+const player = new PlayerController({
+    camera,
+    terrain,
+    chunkGroup,
+    outline,
+    particleEmitter,
+    soundPlayer,
+})
+
 document.addEventListener('keydown', (e) => player.onKeyDown(e))
 document.addEventListener('mousedown', (e) => player.onMouseDown(e))
 document.addEventListener('mouseup', (e) => player.onMouseUp(e))
 document.addEventListener('keydown', (e) => player.onKeyDown(e))
 document.addEventListener('keyup', (e) => player.onKeyUp(e))
+document.addEventListener('wheel', (e) => player.onWheel(e))
 
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight

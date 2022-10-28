@@ -14,6 +14,10 @@ interface ElementDimensions {
     d: number
 }
 
+const blockSounds = <const>['none', 'cloth', 'grass', 'gravel', 'sand', 'snow', 'stone', 'wood']
+
+type BlockSound = typeof blockSounds[number]
+
 class Block {
     id: number
     name: string
@@ -22,11 +26,18 @@ class Block {
     drops: BlockDrop[]
     transparent: boolean
     hasGravity: boolean
+    soundGroup: BlockSound
 
     static blockCount = 0
     model: BlockModel
 
-    constructor(name: string, hardness: number, model: BlockModel, transparent = false) {
+    constructor(
+        name: string,
+        soundGroup: BlockSound,
+        hardness: number,
+        model: BlockModel,
+        transparent = false
+    ) {
         this.id = Block.blockCount++
         this.drops = [{ itemID: this.id, probability: 1 }]
         this.displayName = name
@@ -35,6 +46,7 @@ class Block {
         this.model = model
         this.transparent = transparent
         this.hasGravity = false
+        this.soundGroup = soundGroup
     }
 }
 
@@ -102,17 +114,22 @@ class CubeAllModel extends TopSideModel {
 // ---- Blocks ---------------------------------------------------------------------------
 
 const blocks: Block[] = [
-    new Block('Air', 0, new EmptyModel(), true),
-    new Block('Stone', 10, new CubeAllModel('stone')),
-    new Block('Grass Block', 0.6, new TopSideBottomModel('grass_top', 'grass_side', 'dirt')),
-    new Block('Dirt', 0.5, new CubeAllModel('dirt')),
-    new Block('Cobblestone', 10, new CubeAllModel('cobblestone')),
-    new Block('Oak Planks', 2, new CubeAllModel('oak_planks')),
-    new Block('Oak Log', 2, new TopSideModel('oak_log_top', 'oak_log')),
-    new Block('Bedrock', 100, new CubeAllModel('bedrock')),
-    new Block('Sand', 0.5, new CubeAllModel('sand')),
-    new Block('Water', 100, new CubeAllModel('water'), true),
-    new Block('Glass', 0.3, new CubeAllModel('glass'), true),
+    new Block('Air', 'none', 0, new EmptyModel(), true),
+    new Block('Stone', 'stone', 10, new CubeAllModel('stone')),
+    new Block(
+        'Grass Block',
+        'grass',
+        0.6,
+        new TopSideBottomModel('grass_top', 'grass_side', 'dirt')
+    ),
+    new Block('Dirt', 'gravel', 0.5, new CubeAllModel('dirt')),
+    new Block('Cobblestone', 'stone', 10, new CubeAllModel('cobblestone')),
+    new Block('Oak Planks', 'wood', 2, new CubeAllModel('oak_planks')),
+    new Block('Oak Log', 'wood', 2, new TopSideModel('oak_log_top', 'oak_log')),
+    new Block('Bedrock', 'stone', 100, new CubeAllModel('bedrock')),
+    new Block('Sand', 'sand', 0.5, new CubeAllModel('sand')),
+    new Block('Water', 'none', 100, new CubeAllModel('water'), true),
+    new Block('Glass', 'stone', 0.3, new CubeAllModel('glass'), true),
 ]
 
 const textures: string[] = []
@@ -141,4 +158,4 @@ function setDrop(name: string, drop: string) {
 setDrop('grass_block', 'dirt')
 setDrop('stone', 'cobblestone')
 
-export { blocks, textures, blockIDs }
+export { blocks, textures, blockIDs, blockSounds, BlockSound }
