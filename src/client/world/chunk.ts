@@ -1,14 +1,17 @@
 import { BufferAttribute, BufferGeometry, Group, Material, Mesh } from 'three'
 import { AtlasRanges } from '../blocks/atlas'
 import { blocks } from '../blocks/blocks'
+import { Entity } from '../entities/entity'
+import { FallingBlock } from '../entities/fallingBlock'
 import { getGeometryData } from './builder'
-import { TerrainGenerator } from './generator'
+import { World } from './world'
 
 interface ChunkOptions {
     material1: Material
     material2: Material
     parentGroup: Group
     ranges: AtlasRanges
+    addEntity: (entity: Entity) => void
 }
 
 class Chunk {
@@ -18,6 +21,7 @@ class Chunk {
     meshes: Mesh[]
     neighbors!: Chunk[]
     isModified: boolean
+    addEntity: (entity: Entity) => void
 
     // set by factory
     private parentGroup: Group
@@ -36,6 +40,7 @@ class Chunk {
         this.material2 = options.material2
         this.atlasRanges = options.ranges
         this.parentGroup = options.parentGroup
+        this.addEntity = options.addEntity
     }
 
     get(x: number, y: number, z: number): number {
@@ -74,6 +79,8 @@ class Chunk {
         if (!block) return
 
         if (blocks[block].hasGravity) {
+            this.set(x, y, z, 0)
+            const entity = new FallingBlock(x, y, z, this, block)
         }
     }
 
@@ -188,6 +195,7 @@ class ChunkFactory {
     chunkMaterial: Material
     chunkTransparentMaterial: Material
     atlasRanges: AtlasRanges
+    addEntity!: (entity: Entity) => void
 
     constructor(chunkGroup: Group, ranges: AtlasRanges, material1: Material, material2: Material) {
         this.chunkGroup = chunkGroup
@@ -202,6 +210,7 @@ class ChunkFactory {
             material2: this.chunkTransparentMaterial,
             parentGroup: this.chunkGroup,
             ranges: this.atlasRanges,
+            addEntity: this.addEntity,
         })
         return chunk
     }

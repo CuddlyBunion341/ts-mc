@@ -17,6 +17,7 @@ import { Outline } from './player/blockOutline'
 import { PlayerController } from './player/controller'
 import { ChunkFactory } from './world/chunk'
 import { Terrain } from './world/terrain'
+import { World } from './world/world'
 
 const scene = new Scene()
 scene.background = new Color(0x78a7ff)
@@ -34,6 +35,8 @@ const material2 = new MeshBasicMaterial({ ...materialOptions, transparent: true,
 const factory = new ChunkFactory(chunkGroup, atlas.ranges, material1, material2)
 
 const terrain = new Terrain(factory)
+
+const world = new World(factory)
 
 const renderDistance = 16
 
@@ -115,7 +118,9 @@ const clock = new Clock()
 
 function animate() {
     requestAnimationFrame(animate)
-    player.update(clock.getDelta())
+    const delta = clock.getDelta()
+    player.update(delta)
+    world.update(delta)
     render()
     stats.update()
 }
