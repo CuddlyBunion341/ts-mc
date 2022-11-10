@@ -5,12 +5,14 @@ class Terrain {
     chunks: Map<string, Chunk>
     generator: TerrainGenerator
     chunkFactory: ChunkFactory
+    renderDistance: number
 
-    constructor(chunkFactory: ChunkFactory, seed: number = 69420) {
+    constructor(chunkFactory: ChunkFactory, seed: number = 69420, renderDistance = 16) {
         const generator = new TerrainGenerator(seed)
         this.generator = generator
         this.chunkFactory = chunkFactory
         this.chunks = new Map()
+        this.renderDistance = renderDistance
     }
 
     createChunk(x: number, z: number) {
@@ -43,6 +45,31 @@ class Terrain {
         const chunkZ = Math.floor(z / 16)
         const chunk = this.getChunk(chunkX, chunkZ)
         return chunk?.get(x % 16, y, z % 16)
+    }
+
+    render(x: number, z: number, force = false) {
+        // generate chunks
+        for (let i = -this.renderDistance - 1; i <= this.renderDistance; i++) {
+            for (let j = -this.renderDistance - 1; j <= this.renderDistance; j++) {
+                if (this.getChunk(x + i, z + j)) continue
+                this.createChunk(x + i, z + j)
+            }
+        }
+        // set neighbors & build
+        for (let i = -this.renderDistance; i < this.renderDistance; i++) {
+            for (let j = -this.renderDistance; j < this.renderDistance; j++) {
+                const chunk = this.getChunk(i, j)
+                if (chunk?.meshes.length == 0 || force) {
+                    chunk?.setNeigbors(
+                        this.getChunk(x + i, z + j + 1),
+                        this.getChunk(x + i, z + j - 1),
+                        this.getChunk(x + i + 1, z + j),
+                        this.getChunk(x + i - 1, z + j)
+                    )
+                    requestIdleCallback(() => chunk?.build())
+                }
+            }
+        }
     }
 
     static key(x: number, z: number) {

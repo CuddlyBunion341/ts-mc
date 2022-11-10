@@ -20,8 +20,8 @@ import { Terrain } from './world/terrain'
 import { World } from './world/world'
 
 const scene = new Scene()
-scene.background = new Color(0x78a7ff)
-scene.fog = new Fog(0xf0f0f0, 64, 300)
+scene.background = new Color(0xf0f0f0) // 0x78a7ff
+scene.fog = new Fog(0xf0f0f0, 64, 300) // 0xf0f0f0
 
 const chunkGroup = new Group()
 scene.add(chunkGroup)
@@ -35,36 +35,17 @@ const material2 = new MeshBasicMaterial({ ...materialOptions, transparent: true,
 const factory = new ChunkFactory(chunkGroup, atlas.ranges, material1, material2)
 
 const terrain = new Terrain(factory)
+terrain.renderDistance = 14
 
 const world = new World(factory)
 
-const renderDistance = 16
-
 console.time('Chunk generation')
-// todo: move to terrain class
-for (let i = -1; i <= renderDistance; i++) {
-    for (let j = -1; j <= renderDistance; j++) {
-        terrain.createChunk(i, j)
-    }
-}
-
-for (let i = 0; i < renderDistance; i++) {
-    for (let j = 0; j < renderDistance; j++) {
-        const chunk = terrain.getChunk(i, j)
-        chunk?.setNeigbors(
-            terrain.getChunk(i, j + 1),
-            terrain.getChunk(i, j - 1),
-            terrain.getChunk(i + 1, j),
-            terrain.getChunk(i - 1, j)
-        )
-        requestIdleCallback(() => chunk?.build())
-    }
-}
+terrain.render(0, 0)
 
 console.timeEnd('Chunk generation')
 
 const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-camera.position.set(200, 200, 200)
+camera.position.set(0, 100, 0)
 
 const renderer = new WebGLRenderer({ logarithmicDepthBuffer: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
