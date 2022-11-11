@@ -48,26 +48,46 @@ class Terrain {
     }
 
     render(x: number, z: number, force = false) {
-        // generate chunks
-        for (let i = -this.renderDistance - 1; i <= this.renderDistance; i++) {
-            for (let j = -this.renderDistance - 1; j <= this.renderDistance; j++) {
-                if (this.getChunk(x + i, z + j)) continue
-                this.createChunk(x + i, z + j)
+        console.log(x, z)
+
+        // // generate chunks
+        // for (let i = -this.renderDistance - 1; i <= this.renderDistance; i++) {
+        //     for (let j = -this.renderDistance - 1; j <= this.renderDistance; j++) {
+        //         if (this.getChunk(x + i, z + j)) continue
+        //         this.createChunk(x + i, z + j)
+        //     }
+        // }
+        // // set neighbors & build
+        // for (let i = -this.renderDistance; i < this.renderDistance; i++) {
+        //     for (let j = -this.renderDistance; j < this.renderDistance; j++) {
+        //         const chunk = this.getChunk(i, j)
+        //         if (chunk?.meshes.length == 0 || force) {
+        //             chunk?.setNeigbors(
+        //                 this.getChunk(x + i, z + j + 1),
+        //                 this.getChunk(x + i, z + j - 1),
+        //                 this.getChunk(x + i + 1, z + j),
+        //                 this.getChunk(x + i - 1, z + j)
+        //             )
+        //             requestIdleCallback(() => chunk?.build())
+        //         }
+        //     }
+        // }
+        for (let i = -1; i <= this.renderDistance; i++) {
+            for (let j = -1; j <= this.renderDistance; j++) {
+                this.createChunk(i, j)
             }
         }
-        // set neighbors & build
-        for (let i = -this.renderDistance; i < this.renderDistance; i++) {
-            for (let j = -this.renderDistance; j < this.renderDistance; j++) {
+
+        for (let i = 0; i < this.renderDistance; i++) {
+            for (let j = 0; j < this.renderDistance; j++) {
                 const chunk = this.getChunk(i, j)
-                if (chunk?.meshes.length == 0 || force) {
-                    chunk?.setNeigbors(
-                        this.getChunk(x + i, z + j + 1),
-                        this.getChunk(x + i, z + j - 1),
-                        this.getChunk(x + i + 1, z + j),
-                        this.getChunk(x + i - 1, z + j)
-                    )
-                    requestIdleCallback(() => chunk?.build())
-                }
+                chunk?.setNeigbors(
+                    this.getChunk(i, j + 1),
+                    this.getChunk(i, j - 1),
+                    this.getChunk(i + 1, j),
+                    this.getChunk(i - 1, j)
+                )
+                requestIdleCallback(() => chunk?.build())
             }
         }
     }

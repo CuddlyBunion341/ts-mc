@@ -67,6 +67,15 @@ class Chunk {
         if (this.get(x, y, z) == block) return
         this.set(x, y, z, block)
         this.isModified = true
+        // // send blockupdates
+        this.blockUpdate(x, y, z)
+        this.blockUpdate(x + 1, y, z)
+        this.blockUpdate(x - 1, y, z)
+        this.blockUpdate(x, y + 1, z)
+        this.blockUpdate(x, y - 1, z)
+        this.blockUpdate(x, y, z + 1)
+        this.blockUpdate(x, y, z - 1)
+        // build chunks
         if (x == 0) this.neighbors[3].build()
         if (z == 0) this.neighbors[1].build()
         if (x == 15) this.neighbors[2].build()
@@ -78,9 +87,14 @@ class Chunk {
         const block = this.get(x, y, z)
         if (!block) return
 
-        if (blocks[block].hasGravity) {
-            this.set(x, y, z, 0)
-            const entity = new FallingBlock(x, y, z, this, block)
+        if (blocks?.[block].hasGravity) {
+            const below = this.get(x, y - 1, z)
+            if (below == 0) {
+                this.set(x, y, z, 0)
+                const entity = new FallingBlock(x, y, z, this, block)
+                this.addEntity(entity)
+                setTimeout(() => this.blockUpdate(x, y + 1, z), 50)
+            }
         }
     }
 
@@ -215,5 +229,4 @@ class ChunkFactory {
         return chunk
     }
 }
-
 export { Chunk, ChunkFactory }

@@ -7,8 +7,8 @@ class World {
     terrain: Terrain
     entityController: EntityController
     renderDistance: number
-    constructor(chunkFactory: ChunkFactory) {
-        this.entityController = new EntityController()
+    constructor(chunkFactory: ChunkFactory, entityController: EntityController) {
+        this.entityController = entityController
         chunkFactory.addEntity = (entity) => this.entityController.addEntity(entity)
         this.terrain = new Terrain(chunkFactory)
         this.renderDistance = 16
