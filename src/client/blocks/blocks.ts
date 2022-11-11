@@ -27,6 +27,7 @@ class Block {
     transparent: boolean
     hasGravity: boolean
     soundGroup: BlockSound
+    isSolid: boolean
 
     static blockCount = 0
     model: BlockModel
@@ -36,7 +37,8 @@ class Block {
         soundGroup: BlockSound,
         hardness: number,
         model: BlockModel,
-        transparent = false
+        transparent = false,
+        solid = true
     ) {
         this.id = Block.blockCount++
         this.drops = [{ itemID: this.id, probability: 1 }]
@@ -47,6 +49,7 @@ class Block {
         this.transparent = transparent
         this.hasGravity = false
         this.soundGroup = soundGroup
+        this.isSolid = solid
     }
 }
 
@@ -114,7 +117,7 @@ class CubeAllModel extends TopSideModel {
 // ---- Blocks ---------------------------------------------------------------------------
 
 const blocks: Block[] = [
-    new Block('Air', 'none', 0, new EmptyModel(), true),
+    new Block('Air', 'none', 0, new EmptyModel(), true, false),
     new Block('Stone', 'stone', 10, new CubeAllModel('stone')),
     new Block(
         'Grass Block',
@@ -128,7 +131,7 @@ const blocks: Block[] = [
     new Block('Oak Log', 'wood', 2, new TopSideModel('oak_log_top', 'oak_log')),
     new Block('Bedrock', 'stone', 100, new CubeAllModel('bedrock')),
     new Block('Sand', 'sand', 0.5, new CubeAllModel('sand')),
-    new Block('Water', 'none', 100, new CubeAllModel('water'), true),
+    new Block('Water', 'none', 100, new CubeAllModel('water'), true, false),
     new Block('Glass', 'stone', 0.3, new CubeAllModel('glass'), true),
 ]
 
@@ -157,5 +160,7 @@ function setDrop(name: string, drop: string) {
 
 setDrop('grass_block', 'dirt')
 setDrop('stone', 'cobblestone')
+
+blocks[blockIDs.get('sand')].hasGravity = true
 
 export { blocks, textures, blockIDs, blockSounds, BlockSound }

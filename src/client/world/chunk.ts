@@ -91,7 +91,9 @@ class Chunk {
             const below = this.get(x, y - 1, z)
             if (below == 0) {
                 this.set(x, y, z, 0)
+                this.build()
                 const entity = new FallingBlock(x, y, z, this, block)
+                entity.createMesh(this.atlasRanges, this.material1)
                 this.addEntity(entity)
                 setTimeout(() => this.blockUpdate(x, y + 1, z), 50)
             }
