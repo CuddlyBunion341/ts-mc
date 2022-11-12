@@ -118,6 +118,11 @@ class TerrainGenerator {
                                 }
                             }
                         }
+                        // remove corner blocks
+                        chunk.set(x + 1, y + trunkSize, z + 1, 0)
+                        chunk.set(x - 1, y + trunkSize, z + 1, 0)
+                        chunk.set(x + 1, y + trunkSize, z - 1, 0)
+                        chunk.set(x - 1, y + trunkSize, z - 1, 0)
                     }
                 }
             }
