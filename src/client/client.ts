@@ -11,6 +11,7 @@ import {
 import Stats from 'three/examples/jsm/libs/stats.module'
 import { Atlas } from './blocks/atlas'
 import { blockSounds, textures } from './blocks/blocks'
+import { EntityController } from './entities/entityController'
 import { ParticleEmitter } from './misc/particles'
 import { SoundPlayer } from './misc/soundPlayer'
 import { Outline } from './player/blockOutline'
@@ -26,6 +27,9 @@ scene.fog = new Fog(0xf0f0f0, 64, 300) // 0xf0f0f0
 const chunkGroup = new Group()
 scene.add(chunkGroup)
 
+const entityGroup = new Group()
+scene.add(entityGroup)
+
 const atlas = new Atlas(textures)
 
 const materialOptions = { map: atlas.texture, vertexColors: true }
@@ -35,9 +39,10 @@ const material2 = new MeshBasicMaterial({ ...materialOptions, transparent: true,
 const factory = new ChunkFactory(chunkGroup, atlas.ranges, material1, material2)
 
 const terrain = new Terrain(factory)
-terrain.renderDistance = 14
+terrain.renderDistance = 16
 
-const world = new World(factory)
+const entityController = new EntityController(entityGroup)
+const world = new World(factory, entityController)
 
 console.time('Chunk generation')
 terrain.render(0, 0)
@@ -45,7 +50,7 @@ terrain.render(0, 0)
 console.timeEnd('Chunk generation')
 
 const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-camera.position.set(0, 100, 0)
+camera.position.set(128, 100, 128)
 
 const renderer = new WebGLRenderer({ logarithmicDepthBuffer: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
@@ -67,7 +72,6 @@ const soundFiles = blockSounds.reduce((names: string[], current) => {
     return names
 }, [])
 soundPlayer.load(soundFiles)
-console.log(soundPlayer)
 
 const player = new PlayerController({
     camera,

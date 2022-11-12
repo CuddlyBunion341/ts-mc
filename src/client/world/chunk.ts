@@ -133,7 +133,10 @@ class Chunk {
                         const addFace = (x: number, y: number, z: number) => {
                             const id = this.get(x, y, z)
                             if (id == 0) return true
-                            return !transparent && blocks[id].transparent
+                            return (
+                                (!transparent && blocks[id].transparent) ||
+                                blocks[id].name.includes('leaves')
+                            )
                         }
                         const faces = [
                             addFace(x, y, z + 1),

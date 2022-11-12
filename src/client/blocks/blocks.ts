@@ -129,6 +129,7 @@ const blocks: Block[] = [
     new Block('Cobblestone', 'stone', 10, new CubeAllModel('cobblestone')),
     new Block('Oak Planks', 'wood', 2, new CubeAllModel('oak_planks')),
     new Block('Oak Log', 'wood', 2, new TopSideModel('oak_log_top', 'oak_log')),
+    new Block('Oak Leaves', 'grass', 0.1, new CubeAllModel('oak_leaves'), true),
     new Block('Bedrock', 'stone', 100, new CubeAllModel('bedrock')),
     new Block('Sand', 'sand', 0.5, new CubeAllModel('sand')),
     new Block('Water', 'none', 100, new CubeAllModel('water'), true, false),

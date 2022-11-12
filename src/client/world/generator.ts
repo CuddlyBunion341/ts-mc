@@ -24,7 +24,7 @@ function fractalNoise2D(
 
 function createFractalNoise2D(
     noise: NoiseFunction2D,
-    octaves = 3,
+    octaves = 2,
     lacunarity = 2,
     persistence = 0.5
 ): NoiseFunction2D {
@@ -36,9 +36,9 @@ function createFractalNoise2D(
 class TerrainGenerator {
     seed: number
     noise: NoiseFunction2D
-    hilliness = 20
+    hilliness = 10
     spread = 64
-    minHeight = 50
+    minHeight = 65
     seaLevel = 65
 
     constructor(seed: number = 69420) {
@@ -77,18 +77,48 @@ class TerrainGenerator {
                     else if (y >= height - 5) block = blockIDs.get('dirt')
                     else if (y == 0) block = blockIDs.get('bedrock')
 
-                    const sy = Math.floor(y / 16)
-                    const index = 16 * 16 * z + 16 * (y % 16) + x
-                    chunk.subchunks[sy] ||= Array(4096).fill(0)
-                    chunk.subchunks[sy][index] = block
-                }
+                    chunk.set(x, y, z, block)
 
-                // add water
-                for (let y = height; y <= this.seaLevel; y++) {
-                    const sy = Math.floor(y / 16)
-                    const index = 16 * 16 * z + 16 * (y % 16) + x
-                    chunk.subchunks[sy] ||= Array(4096).fill(0)
-                    chunk.subchunks[sy][index] = blockIDs.get('water')
+                    // add water
+                    for (let y = height; y <= this.seaLevel; y++) {
+                        chunk.set(x, y, z, blockIDs.get('water'))
+                    }
+
+                    // spawn tree
+                    if (block == blockIDs.get('grass_block') && Math.random() < 0.01) {
+                        if (x % 16 < 2 || z % 16 < 2 || x % 16 > 13 || z % 16 > 13) continue
+                        // trunk
+                        const trunkSize = Math.floor(Math.random() * 3 + 5)
+                        for (let t = 0; t < trunkSize; t++) {
+                            chunk.set(x, y + t, z, blockIDs.get('oak_log'))
+                        }
+                        // bush
+                        for (let t = 0; t < 2; t++) {
+                            for (let i = -2; i <= 2; i++) {
+                                for (let j = -2; j <= 2; j++) {
+                                    if (i == 0 && j == 0) continue
+                                    chunk.set(
+                                        x + i,
+                                        y + trunkSize - 3 + t,
+                                        z + j,
+                                        blockIDs.get('oak_leaves')
+                                    )
+                                }
+                            }
+
+                            for (let i = -1; i <= 1; i++) {
+                                for (let j = -1; j <= 1; j++) {
+                                    if (i == 0 && j == 0 && t != 1) continue
+                                    chunk.set(
+                                        x + i,
+                                        y + trunkSize - 1 + t,
+                                        z + j,
+                                        blockIDs.get('oak_leaves')
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
