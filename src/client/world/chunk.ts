@@ -3,6 +3,7 @@ import { AtlasRanges } from '../blocks/atlas'
 import { blocks } from '../blocks/blocks'
 import { Entity } from '../entities/entity'
 import { FallingBlock } from '../entities/fallingBlock'
+import { ItemEntity } from '../entities/itemEntity'
 import { getGeometryData } from './builder'
 import { World } from './world'
 
@@ -63,8 +64,16 @@ class Chunk {
         this.subchunks[sy][index] = block
     }
 
-    update(x: number, y: number, z: number, block: number) {
-        if (this.get(x, y, z) == block) return
+    update(x: number, y: number, z: number, block: number, drop = true) {
+        const prevBlock = this.get(x, y, z)
+        if (prevBlock == block) return
+
+        if (drop && prevBlock != 0) {
+            const item = new ItemEntity(x + this.x * 16, y, z + this.z * 16, prevBlock)
+            item.createMesh(this.atlasRanges, this.material1)
+            this.addEntity(item)
+        }
+
         this.set(x, y, z, block)
         this.isModified = true
         // // send blockupdates

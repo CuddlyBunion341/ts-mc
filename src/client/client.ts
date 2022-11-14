@@ -34,7 +34,7 @@ const atlas = new Atlas(textures)
 
 const materialOptions = { map: atlas.texture, vertexColors: true }
 const material1 = new MeshBasicMaterial(materialOptions)
-const material2 = new MeshBasicMaterial({ ...materialOptions, transparent: true, opacity: 0.8 })
+const material2 = new MeshBasicMaterial({ ...materialOptions, transparent: true, opacity: 1 })
 
 const factory = new ChunkFactory(chunkGroup, atlas.ranges, material1, material2)
 
