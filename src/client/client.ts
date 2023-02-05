@@ -8,7 +8,12 @@ import {
     Scene,
     WebGLRenderer,
 } from 'three'
+import * as CANNON from 'cannon-es'
+import CannonDebugger from 'cannon-es-debugger'
 import Stats from 'three/examples/jsm/libs/stats.module'
+
+import { scene, physicsWorld } from './global'
+
 import { Atlas } from './blocks/atlas'
 import { blockSounds, textures } from './blocks/blocks'
 import { EntityController } from './entities/entityController'
@@ -20,21 +25,20 @@ import { ChunkFactory } from './world/chunk'
 import { Terrain } from './world/terrain'
 import { World } from './world/world'
 
-const scene = new Scene()
 scene.background = new Color(0xf0f0f0) // 0x78a7ff
 scene.fog = new Fog(0xf0f0f0, 64, 300) // 0xf0f0f0
 
-const chunkGroup = new Group()
+const chunkGroup = new Group() // stores meshes of all chunks
 scene.add(chunkGroup)
 
-const entityGroup = new Group()
+const entityGroup = new Group() // stores all entities
 scene.add(entityGroup)
 
 const atlas = new Atlas(textures)
 
 const materialOptions = { map: atlas.texture, vertexColors: true }
-const material1 = new MeshBasicMaterial(materialOptions)
-const material2 = new MeshBasicMaterial({ ...materialOptions, transparent: true, opacity: 1 })
+const material1 = new MeshBasicMaterial(materialOptions) // opaque chunk material
+const material2 = new MeshBasicMaterial({ ...materialOptions, transparent: true, opacity: 1 }) // transparent chunk material
 
 const factory = new ChunkFactory(chunkGroup, atlas.ranges, material1, material2)
 
@@ -46,7 +50,6 @@ const world = new World(factory, entityController)
 
 console.time('Chunk generation')
 terrain.render(0, 0)
-
 console.timeEnd('Chunk generation')
 
 const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
@@ -96,16 +99,43 @@ window.addEventListener('resize', () => {
     render()
 })
 
+// CANNON
+
+const groundBody = new CANNON.Body({
+    type: CANNON.Body.STATIC,
+    shape: new CANNON.Plane(),
+    position: new CANNON.Vec3(96, 70, 96),
+})
+
+// add a cube to the ground
+const cubeShape = new CANNON.Box(new CANNON.Vec3(1, 1, 1))
+const cubeBody = new CANNON.Body({
+    mass: 1,
+    shape: cubeShape,
+    position: new CANNON.Vec3(96, 100, 96),
+})
+
+physicsWorld.addBody(cubeBody)
+
+groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2)
+physicsWorld.addBody(groundBody)
+
 const stats = Stats()
 document.body.appendChild(stats.dom)
 
 const clock = new Clock()
+
+const cannonDebugger = CannonDebugger(scene, physicsWorld, {
+    color: 0x00ff00,
+})
 
 function animate() {
     requestAnimationFrame(animate)
     const delta = clock.getDelta()
     player.update(delta)
     world.update(delta)
+    physicsWorld.step(delta)
+    cannonDebugger.update()
     render()
     stats.update()
 }

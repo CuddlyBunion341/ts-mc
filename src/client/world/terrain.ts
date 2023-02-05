@@ -1,3 +1,4 @@
+import { physicsWorld } from '../global'
 import { Chunk, ChunkFactory } from './chunk'
 import { TerrainGenerator } from './generator'
 
@@ -41,10 +42,30 @@ class Terrain {
     }
 
     getBlock(x: number, y: number, z: number) {
+        ;[x, y, z] = [x, y, z].map(Math.floor)
+
         const chunkX = Math.floor(x / 16)
         const chunkZ = Math.floor(z / 16)
         const chunk = this.getChunk(chunkX, chunkZ)
         return chunk?.get(x % 16, y, z % 16)
+    }
+
+    getCollider(x: number, y: number, z: number) {
+        ;[x, y, z] = [x, y, z].map(Math.floor)
+
+        const chunkX = Math.floor(x / 16)
+        const chunkZ = Math.floor(z / 16)
+        const chunk = this.getChunk(chunkX, chunkZ)
+        return chunk?.getCollider(x % 16, y, z % 16, 3)
+    }
+
+    updateCollider(x: number, y: number, z: number) {
+        const colliders = this.getCollider(x, y, z)
+
+        if (!colliders) return
+        for (const collider of colliders) {
+            physicsWorld.addBody(collider)
+        }
     }
 
     render(x: number, z: number, force = false) {

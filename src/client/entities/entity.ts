@@ -1,6 +1,7 @@
 import { Mesh, Vector3 } from 'three'
 
 import { v4 as uuid4 } from 'uuid'
+import { EntityController } from './entityController'
 
 abstract class Entity {
     static count: number
@@ -10,6 +11,7 @@ abstract class Entity {
     name: string
     mesh: Mesh | undefined
     alive: boolean
+    entityController!: EntityController
     constructor(name: string) {
         this.name = name
         this.uuid = uuid4()

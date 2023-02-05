@@ -12,6 +12,7 @@ class EntityController {
         this.entities.forEach((e) => e.update(delta))
     }
     addEntity(entity: Entity) {
+        entity.entityController = this
         if (entity.mesh) this.parent.add(entity.mesh)
         this.entities.push(entity)
     }

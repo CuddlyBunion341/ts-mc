@@ -1,9 +1,11 @@
+import * as CANNON from 'cannon-es'
 import { BufferAttribute, BufferGeometry, Group, Material, Mesh } from 'three'
 import { AtlasRanges } from '../blocks/atlas'
 import { blocks } from '../blocks/blocks'
 import { Entity } from '../entities/entity'
 import { FallingBlock } from '../entities/fallingBlock'
 import { ItemEntity } from '../entities/itemEntity'
+import { physicsWorld } from '../global'
 import { getGeometryData } from './builder'
 import { World } from './world'
 
@@ -23,6 +25,7 @@ class Chunk {
     neighbors!: Chunk[]
     isModified: boolean
     addEntity: (entity: Entity) => void
+    physicsBody: CANNON.Body
 
     // set by factory
     private parentGroup: Group
@@ -42,6 +45,11 @@ class Chunk {
         this.atlasRanges = options.ranges
         this.parentGroup = options.parentGroup
         this.addEntity = options.addEntity
+        this.physicsBody = new CANNON.Body({
+            mass: 0,
+            position: new CANNON.Vec3(x * 16 + 8, 0, z * 16 + 8),
+        })
+        physicsWorld.addBody(this.physicsBody)
     }
 
     get(x: number, y: number, z: number): number {
@@ -71,7 +79,7 @@ class Chunk {
         if (drop && prevBlock != 0) {
             const item = new ItemEntity(x + this.x * 16, y, z + this.z * 16, prevBlock)
             item.createMesh(this.atlasRanges, this.material1)
-            this.addEntity(item)
+            // this.addEntity(item)
         }
 
         this.set(x, y, z, block)
@@ -116,6 +124,32 @@ class Chunk {
         if (east) neighbors.push(east)
         if (west) neighbors.push(west)
         this.neighbors = neighbors
+    }
+
+    getCollider(x: number, y: number, z: number, range: number): CANNON.Body[] {
+        const coliders: CANNON.Body[] = []
+
+        for (let i = x - range; i <= x + range; i++) {
+            for (let j = y - range; j <= y + range; j++) {
+                for (let k = z - range; k <= z + range; k++) {
+                    const block = this.get(i, j, k)
+                    if (blocks[block].isSolid) {
+                        const shape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5))
+                        const body = new CANNON.Body({
+                            mass: 0,
+                            type: CANNON.Body.STATIC,
+                            position: new CANNON.Vec3(i + this.x * 16, j, k + this.z * 16),
+                            shape,
+                        })
+                        coliders.push(body)
+                    }
+                }
+            }
+        }
+
+        console.log(coliders)
+
+        return coliders
     }
 
     build() {
@@ -211,10 +245,13 @@ class Chunk {
     }
 
     dispose() {
+        // remove three js meshes
         for (const mesh of this.meshes) {
             mesh.removeFromParent()
             mesh.geometry.dispose()
         }
+        // remove cannon js bodies
+        this.physicsBody?.world?.removeBody(this.physicsBody)
     }
 }
 

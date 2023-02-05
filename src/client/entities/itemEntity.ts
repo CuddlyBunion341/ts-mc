@@ -3,18 +3,23 @@ import { AtlasRanges } from '../blocks/atlas'
 import { blocks } from '../blocks/blocks'
 import { getGeometryData } from '../world/builder'
 import { Entity } from './entity'
+import { EntityController } from './entityController'
 
 class ItemEntity extends Entity {
     itemID: number
+    count: number
     x: number
     y: number
     z: number
+    time: number
     constructor(x: number, y: number, z: number, itemID: number) {
         super('item')
         this.itemID = itemID
         this.x = x
         this.y = y
         this.z = z
+        this.time = 0
+        this.count = 0
     }
 
     createMesh(atlasRanges: AtlasRanges, material: Material) {
@@ -33,14 +38,25 @@ class ItemEntity extends Entity {
         setAttr('color', colors, 3)
 
         this.mesh = new Mesh(geometry, material)
-        this.mesh.position.set(this.x, this.y, this.z)
-        this.mesh.scale.set(0.5, 0.5, 0.5)
+        this.mesh.position.set(
+            this.x + Math.random() / 4,
+            this.y + Math.random() / 4,
+            this.z + Math.random() / 4
+        )
+        this.mesh.scale.set(0.25, 0.25, 0.25)
     }
 
     update(delta: number): void {
-        // TODO: rotate item around y axis
-        // TODO: move Item up and down
+        this.time += delta
+        if (!this.mesh) return
+        this.mesh.rotateY(delta) // rotate
+        this.mesh.position.y = Math.sin(this.time) * 0.2 + this.y // bob up and down
         // TODO: test for player collision
+        this.entityController.entities.forEach((entity) => {
+            if (entity == this) return
+            if (!this.alive) return
+            // TODO: STACK
+        })
     }
 }
 

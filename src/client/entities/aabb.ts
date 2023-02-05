@@ -24,18 +24,25 @@ class AABB {
     }
 
     colides(other: AABB) {
-        // TODO: FIXME
         return (
-            (inRange(this.position.x, other.position.x, other.position.x + other.dimensions.x) &&
-                inRange(this.position.y, other.position.y, other.position.y + other.dimensions.y) &&
+            (inRange(this.position.x, other.position.x, other.position.x + other.dimensions.x) ||
                 inRange(
-                    this.position.z,
+                    this.position.x + this.dimensions.x,
+                    other.position.x,
+                    other.position.x + other.dimensions.x
+                )) &&
+            (inRange(this.position.y, other.position.y, other.position.y + other.dimensions.y) ||
+                inRange(
+                    this.position.y + this.dimensions.y,
+                    other.position.y,
+                    other.position.y + other.dimensions.y
+                )) &&
+            (inRange(this.position.z, other.position.z, other.position.z + other.dimensions.z) ||
+                inRange(
+                    this.position.z + this.dimensions.z,
                     other.position.z,
                     other.position.z + other.dimensions.z
-                )) ||
-            (inRange(other.position.x, this.position.x, this.position.x + this.dimensions.x) &&
-                inRange(other.position.y, this.position.y, this.position.y + this.dimensions.y) &&
-                inRange(other.position.z, this.position.z, this.position.z + this.dimensions.z))
+                ))
         )
     }
 }
