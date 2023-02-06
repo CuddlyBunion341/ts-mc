@@ -1,119 +1,31 @@
-import { blockIDs } from '../blocks/blocks'
-
-type GameMode = 'survival' | 'creative' | 'spectator'
-
-interface Slot {
-    index: number
-    count: number
-    itemID: number
-}
+import { Camera } from 'three'
+import { PlayerController } from './playerController'
+import { PlayerEntity } from './playerEntity'
+import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
 
 class Player {
-    gamemode: GameMode
-    health: number
-    inventory: Array<Slot | null>
-    selectedSlot: number
-    constructor() {
-        this.gamemode = 'survival'
-        this.selectedSlot = 0
-        this.inventory = Array(27).fill(null)
-        this.health = 20
+    private camera: Camera
+    private playerController: PlayerController
+    private pointerController: PointerLockControls
+    private entity: PlayerEntity
+    private cameraOffset: number = 1.5
+    private elapsedTime: number = 0
 
-        const hotbar = ['stone', 'cobblestone', 'dirt', 'oak_log', 'oak_planks', 'glass']
-
-        for (let i = 0; i < hotbar.length; i++) {
-            this.setItem(i, blockIDs.get(hotbar[i]), 10)
-        }
+    constructor(camera: Camera) {
+        this.camera = camera
+        this.entity = new PlayerEntity()
+        this.playerController = new PlayerController(this.entity, camera)
+        this.pointerController = new PointerLockControls(camera, document.body)
     }
 
-    getSlot(index: number) {
-        return this.inventory[index]
-    }
+    update(delta: number) {
+        this.playerController.update(delta)
+        this.entity.update(delta)
 
-    getSelectedSlot() {
-        return this.inventory[this.selectedSlot]
-    }
-
-    setItem(index: number, itemID: number, count: number): Slot | null {
-        if (index < 0 || index >= 27) return null
-        const slot = { itemID, count, index }
-        return (this.inventory[index] = slot)
-    }
-
-    setItemCount(index: number, newCount: number) {
-        if (index < 0 || index >= 27) return null
-
-        if (newCount <= 0) {
-            return (this.inventory[index] = null)
-        }
-
-        const slot = this.inventory[index]
-        if (!slot) return null
-        slot.count = newCount
-
-        return slot
-    }
-
-    updateItemCount(index: number, delta: number) {
-        const slot = this.getSlot(index)
-        if (!slot) return 0
-
-        slot.count = slot.count + delta
-
-        if (slot.count == 0) {
-            this.inventory[index] = null
-        }
-
-        return slot.count || 0
-    }
-
-    addItem(itemID: number) {
-        for (let i = 0; i < 27; i++) {
-            const slot = this.getSlot(i)
-            if (slot && slot.itemID == itemID) {
-                if (slot.count < 64) {
-                    slot.count++
-                    return i
-                }
-            }
-        }
-        for (let i = 0; i < 27; i++) {
-            if (!this.getSlot(i)) {
-                this.setItem(i, itemID, 1)
-                return i
-            }
-        }
-        return -1
-    }
-
-    addItems(itemID: number, count: number) {
-        if (count <= 0) return []
-        const modifiedSlots: number[] = []
-
-        for (let i = 0; i < 27; i++) {
-            const slot = this.getSlot(i)
-            if (slot?.itemID == itemID) {
-                const c = slot.count
-                const diff = 64 - c
-                const heap = Math.min(count, diff)
-                count -= heap
-                slot.count += heap
-                modifiedSlots.push(i)
-                if (count == 0) break
-            }
-        }
-
-        for (let i = 0; i < 27; i++) {
-            if (!this.getSlot(i)) {
-                const heap = Math.min(64, count)
-                count -= heap
-                this.setItem(i, itemID, heap)
-                modifiedSlots.push(i)
-                if (count == 0) break
-            }
-        }
-        return modifiedSlots
+        this.camera.position.copy(this.entity.position)
+        this.camera.position.y += this.cameraOffset
+        this.camera.translateZ(5)
     }
 }
 
-export { Player, GameMode }
+export { Player }

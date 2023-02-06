@@ -1,12 +1,16 @@
 import { physicsWorld } from '../global'
 import { Chunk, ChunkFactory } from './chunk'
 import { TerrainGenerator } from './generator'
+import * as CANNON from 'cannon-es'
+import { WorldCollider } from './collider'
 
 class Terrain {
     chunks: Map<string, Chunk>
     generator: TerrainGenerator
     chunkFactory: ChunkFactory
     renderDistance: number
+
+    private colliders: WorldCollider[] = []
 
     constructor(chunkFactory: ChunkFactory, seed: number = 69420, renderDistance = 16) {
         const generator = new TerrainGenerator(seed)
@@ -24,6 +28,10 @@ class Terrain {
         this.generator.generate(chunk)
 
         return chunk
+    }
+
+    getChunkFromBlock(x: number, z: number) {
+        return this.getChunk(Math.floor(x / 16), Math.floor(z / 16))
     }
 
     getChunk(x: number, z: number) {
@@ -53,10 +61,15 @@ class Terrain {
     getCollider(x: number, y: number, z: number) {
         ;[x, y, z] = [x, y, z].map(Math.floor)
 
+        let colliders: CANNON.Body[] = []
+
         const chunkX = Math.floor(x / 16)
         const chunkZ = Math.floor(z / 16)
         const chunk = this.getChunk(chunkX, chunkZ)
-        return chunk?.getCollider(x % 16, y, z % 16, 3)
+        const collider = chunk?.getCollider(x % 16, y, z % 16, 5)
+        if (collider) colliders.push(...collider)
+
+        return colliders
     }
 
     updateCollider(x: number, y: number, z: number) {
@@ -69,30 +82,9 @@ class Terrain {
     }
 
     render(x: number, z: number, force = false) {
+        // TODO: render chunks in a circle
         console.log(x, z)
 
-        // // generate chunks
-        // for (let i = -this.renderDistance - 1; i <= this.renderDistance; i++) {
-        //     for (let j = -this.renderDistance - 1; j <= this.renderDistance; j++) {
-        //         if (this.getChunk(x + i, z + j)) continue
-        //         this.createChunk(x + i, z + j)
-        //     }
-        // }
-        // // set neighbors & build
-        // for (let i = -this.renderDistance; i < this.renderDistance; i++) {
-        //     for (let j = -this.renderDistance; j < this.renderDistance; j++) {
-        //         const chunk = this.getChunk(i, j)
-        //         if (chunk?.meshes.length == 0 || force) {
-        //             chunk?.setNeigbors(
-        //                 this.getChunk(x + i, z + j + 1),
-        //                 this.getChunk(x + i, z + j - 1),
-        //                 this.getChunk(x + i + 1, z + j),
-        //                 this.getChunk(x + i - 1, z + j)
-        //             )
-        //             requestIdleCallback(() => chunk?.build())
-        //         }
-        //     }
-        // }
         for (let i = -1; i <= this.renderDistance; i++) {
             for (let j = -1; j <= this.renderDistance; j++) {
                 this.createChunk(i, j)
@@ -118,4 +110,4 @@ class Terrain {
     }
 }
 
-export { Terrain }
+export { Terrain, WorldCollider }

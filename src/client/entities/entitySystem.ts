@@ -1,21 +1,25 @@
 import { Object3D } from 'three'
 import { Entity } from './entity'
 
-class EntityController {
+class EntitySystem {
     entities: Entity[]
     parent: Object3D
+
     constructor(parent: Object3D) {
         this.parent = parent
         this.entities = []
     }
+
     update(delta: number) {
         this.entities.forEach((e) => e.update(delta))
     }
+
     addEntity(entity: Entity) {
-        entity.entityController = this
+        entity.entitySystem = this
         if (entity.mesh) this.parent.add(entity.mesh)
         this.entities.push(entity)
     }
+
     removeEntity(entity: Entity) {
         if (entity.mesh) this.parent.remove(entity.mesh)
         const index = this.entities.indexOf(entity)
@@ -23,4 +27,4 @@ class EntityController {
     }
 }
 
-export { EntityController }
+export { EntitySystem }

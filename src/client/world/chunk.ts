@@ -5,7 +5,7 @@ import { blocks } from '../blocks/blocks'
 import { Entity } from '../entities/entity'
 import { FallingBlock } from '../entities/fallingBlock'
 import { ItemEntity } from '../entities/itemEntity'
-import { physicsWorld } from '../global'
+import { materials, physicsWorld } from '../global'
 import { getGeometryData } from './builder'
 import { World } from './world'
 
@@ -126,6 +126,17 @@ class Chunk {
         this.neighbors = neighbors
     }
 
+    isExposed(x: number, y: number, z: number) {
+        if (this.get(x, y, z) == 0) return false
+        if (!blocks[this.get(x + 1, y, z)]?.isSolid) return true
+        if (!blocks[this.get(x - 1, y, z)]?.isSolid) return true
+        if (!blocks[this.get(x, y + 1, z)]?.isSolid) return true
+        if (!blocks[this.get(x, y - 1, z)]?.isSolid) return true
+        if (!blocks[this.get(x, y, z + 1)]?.isSolid) return true
+        if (!blocks[this.get(x, y, z - 1)]?.isSolid) return true
+        return false
+    }
+
     getCollider(x: number, y: number, z: number, range: number): CANNON.Body[] {
         const coliders: CANNON.Body[] = []
 
@@ -133,21 +144,20 @@ class Chunk {
             for (let j = y - range; j <= y + range; j++) {
                 for (let k = z - range; k <= z + range; k++) {
                     const block = this.get(i, j, k)
-                    if (blocks[block].isSolid) {
-                        const shape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5))
-                        const body = new CANNON.Body({
-                            mass: 0,
-                            type: CANNON.Body.STATIC,
-                            position: new CANNON.Vec3(i + this.x * 16, j, k + this.z * 16),
-                            shape,
-                        })
-                        coliders.push(body)
-                    }
+
+                    // if (!blocks[block]?.isSolid && !this.isExposed(i, j, k)) continue
+                    if (!this.isExposed(i, j, k)) continue
+                    const shape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5))
+                    const body = new CANNON.Body({
+                        mass: 0,
+                        type: CANNON.Body.STATIC,
+                        position: new CANNON.Vec3(i + this.x * 16, j, k + this.z * 16),
+                        shape,
+                    })
+                    coliders.push(body)
                 }
             }
         }
-
-        console.log(coliders)
 
         return coliders
     }
@@ -262,10 +272,10 @@ class ChunkFactory {
     atlasRanges: AtlasRanges
     addEntity!: (entity: Entity) => void
 
-    constructor(chunkGroup: Group, ranges: AtlasRanges, material1: Material, material2: Material) {
+    constructor(chunkGroup: Group, ranges: AtlasRanges) {
         this.chunkGroup = chunkGroup
-        this.chunkMaterial = material1
-        this.chunkTransparentMaterial = material2
+        this.chunkMaterial = materials.opaque
+        this.chunkTransparentMaterial = materials.transparent
         this.atlasRanges = ranges
     }
 

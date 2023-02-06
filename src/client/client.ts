@@ -5,48 +5,29 @@ import {
     Group,
     MeshBasicMaterial,
     PerspectiveCamera,
-    Scene,
     WebGLRenderer,
 } from 'three'
 import * as CANNON from 'cannon-es'
-import CannonDebugger from 'cannon-es-debugger'
 import Stats from 'three/examples/jsm/libs/stats.module'
 
-import { scene, physicsWorld } from './global'
+import { scene, physicsWorld, cannonDebugger, factory, terrain, atlas, groups } from './global'
 
 import { Atlas } from './blocks/atlas'
 import { blockSounds, textures } from './blocks/blocks'
-import { EntityController } from './entities/entityController'
 import { ParticleEmitter } from './misc/particles'
 import { SoundPlayer } from './misc/soundPlayer'
 import { Outline } from './player/blockOutline'
-import { PlayerController } from './player/controller'
 import { ChunkFactory } from './world/chunk'
 import { Terrain } from './world/terrain'
 import { World } from './world/world'
+import { EntitySystem } from './entities/entitySystem'
+import { Player } from './player/player'
 
 scene.background = new Color(0xf0f0f0) // 0x78a7ff
 scene.fog = new Fog(0xf0f0f0, 64, 300) // 0xf0f0f0
 
-const chunkGroup = new Group() // stores meshes of all chunks
-scene.add(chunkGroup)
-
-const entityGroup = new Group() // stores all entities
-scene.add(entityGroup)
-
-const atlas = new Atlas(textures)
-
-const materialOptions = { map: atlas.texture, vertexColors: true }
-const material1 = new MeshBasicMaterial(materialOptions) // opaque chunk material
-const material2 = new MeshBasicMaterial({ ...materialOptions, transparent: true, opacity: 1 }) // transparent chunk material
-
-const factory = new ChunkFactory(chunkGroup, atlas.ranges, material1, material2)
-
-const terrain = new Terrain(factory)
-terrain.renderDistance = 16
-
-const entityController = new EntityController(entityGroup)
-const world = new World(factory, entityController)
+const entitySystem = new EntitySystem(groups.entity)
+const world = new World(factory, entitySystem)
 
 console.time('Chunk generation')
 terrain.render(0, 0)
@@ -60,9 +41,9 @@ renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setPixelRatio(devicePixelRatio)
 document.body.appendChild(renderer.domElement)
 
-const outline = new Outline()
-scene.add(outline.mesh)
-scene.add(outline.helper)
+// const outline = new Outline()
+// scene.add(outline.mesh)
+// scene.add(outline.helper)
 
 const particleEmitter = new ParticleEmitter(atlas, scene, camera)
 
@@ -76,21 +57,23 @@ const soundFiles = blockSounds.reduce((names: string[], current) => {
 }, [])
 soundPlayer.load(soundFiles)
 
-const player = new PlayerController({
-    camera,
-    terrain,
-    chunkGroup,
-    outline,
-    particleEmitter,
-    soundPlayer,
-})
+const player = new Player(camera)
 
-document.addEventListener('keydown', (e) => player.onKeyDown(e))
-document.addEventListener('mousedown', (e) => player.onMouseDown(e))
-document.addEventListener('mouseup', (e) => player.onMouseUp(e))
-document.addEventListener('keydown', (e) => player.onKeyDown(e))
-document.addEventListener('keyup', (e) => player.onKeyUp(e))
-document.addEventListener('wheel', (e) => player.onWheel(e))
+// const player = new PlayerController({
+//     camera,
+//     terrain,
+//     chunkGroup,
+//     outline,
+//     particleEmitter,
+//     soundPlayer,
+// })
+
+// document.addEventListener('keydown', (e) => player.onKeyDown(e))
+// document.addEventListener('mousedown', (e) => player.onMouseDown(e))
+// document.addEventListener('mouseup', (e) => player.onMouseUp(e))
+// document.addEventListener('keydown', (e) => player.onKeyDown(e))
+// document.addEventListener('keyup', (e) => player.onKeyUp(e))
+// document.addEventListener('wheel', (e) => player.onWheel(e))
 
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight
@@ -104,18 +87,8 @@ window.addEventListener('resize', () => {
 const groundBody = new CANNON.Body({
     type: CANNON.Body.STATIC,
     shape: new CANNON.Plane(),
-    position: new CANNON.Vec3(96, 70, 96),
+    position: new CANNON.Vec3(0, 0, 0),
 })
-
-// add a cube to the ground
-const cubeShape = new CANNON.Box(new CANNON.Vec3(1, 1, 1))
-const cubeBody = new CANNON.Body({
-    mass: 1,
-    shape: cubeShape,
-    position: new CANNON.Vec3(96, 100, 96),
-})
-
-physicsWorld.addBody(cubeBody)
 
 groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2)
 physicsWorld.addBody(groundBody)
@@ -124,10 +97,6 @@ const stats = Stats()
 document.body.appendChild(stats.dom)
 
 const clock = new Clock()
-
-const cannonDebugger = CannonDebugger(scene, physicsWorld, {
-    color: 0x00ff00,
-})
 
 function animate() {
     requestAnimationFrame(animate)

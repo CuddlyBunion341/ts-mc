@@ -3,7 +3,7 @@ import { AtlasRanges } from '../blocks/atlas'
 import { blocks } from '../blocks/blocks'
 import { getGeometryData } from '../world/builder'
 import { Entity } from './entity'
-import { EntityController } from './entityController'
+import { EntitySystem } from './entitySystem'
 
 class ItemEntity extends Entity {
     itemID: number
@@ -52,7 +52,7 @@ class ItemEntity extends Entity {
         this.mesh.rotateY(delta) // rotate
         this.mesh.position.y = Math.sin(this.time) * 0.2 + this.y // bob up and down
         // TODO: test for player collision
-        this.entityController.entities.forEach((entity) => {
+        this.entitySystem.entities.forEach((entity) => {
             if (entity == this) return
             if (!this.alive) return
             // TODO: STACK

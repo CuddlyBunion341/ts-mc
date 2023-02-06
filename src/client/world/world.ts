@@ -1,20 +1,22 @@
 import { Entity } from '../entities/entity'
-import { EntityController } from '../entities/entityController'
+import { EntitySystem } from '../entities/entitySystem'
 import { ChunkFactory } from './chunk'
 import { Terrain } from './terrain'
 
 class World {
     terrain: Terrain
-    entityController: EntityController
+    entitySystem: EntitySystem
     renderDistance: number
-    constructor(chunkFactory: ChunkFactory, entityController: EntityController) {
-        this.entityController = entityController
-        chunkFactory.addEntity = (entity) => this.entityController.addEntity(entity)
+
+    constructor(chunkFactory: ChunkFactory, entitySystem: EntitySystem) {
+        this.entitySystem = entitySystem
+        chunkFactory.addEntity = (entity) => this.entitySystem.addEntity(entity)
         this.terrain = new Terrain(chunkFactory)
         this.renderDistance = 16
     }
+
     update(delta: number) {
-        this.entityController.update(delta)
+        this.entitySystem.update(delta)
     }
 
     getActiveChunks() {}

@@ -133,7 +133,8 @@ class HudController {
     }
 
     setSelectedSlot(index: number) {
-        if (index < 0 || index > 8) return
+        if (index < 0) index = 8
+        if (index > 8) index = 0
         this.selectedSlot.style.setProperty('--index', String(index))
     }
 

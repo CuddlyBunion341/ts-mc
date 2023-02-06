@@ -26,6 +26,8 @@
     },
     "dependencies": {
         "alea": "^1.0.1",
+        "cannon-es": "^0.20.0",
+        "cannon-es-debugger": "^1.0.0",
         "express": "^4.17.3",
         "simplex-noise": "^4.0.1",
         "uuid": "^9.0.0"
