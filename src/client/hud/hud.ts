@@ -1,13 +1,14 @@
 class InventorySlot {
+    public static parentElement: HTMLElement
+
+    public container: HTMLDivElement
+    public image: HTMLImageElement
+    public span: HTMLSpanElement
+
     private _index: number
     private _count: number
     private _name: string
 
-    container: HTMLDivElement
-    image: HTMLImageElement
-    span: HTMLSpanElement
-
-    static parentElement: HTMLElement
     constructor(index: number, name: string, count: number) {
         this._index = index
         this._name = name

@@ -1,8 +1,8 @@
 import { BoxGeometry, BoxHelper, Mesh, MeshBasicMaterial, Object3D } from 'three'
 
 class Outline {
-    mesh: Object3D
-    helper: BoxHelper
+    public mesh: Object3D
+    public helper: BoxHelper
 
     constructor() {
         const geometry = new BoxGeometry(1.001, 1.001, 1.001)

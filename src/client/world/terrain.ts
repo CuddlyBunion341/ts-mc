@@ -5,10 +5,10 @@ import * as CANNON from 'cannon-es'
 import { WorldCollider } from './collider'
 
 class Terrain {
-    chunks: Map<string, Chunk>
-    generator: TerrainGenerator
-    chunkFactory: ChunkFactory
-    renderDistance: number
+    public chunks: Map<string, Chunk>
+    public generator: TerrainGenerator
+    public chunkFactory: ChunkFactory
+    public renderDistance: number
 
     private colliders: WorldCollider[] = []
 

@@ -4,9 +4,9 @@ import { ChunkFactory } from './chunk'
 import { Terrain } from './terrain'
 
 class World {
-    terrain: Terrain
-    entitySystem: EntitySystem
-    renderDistance: number
+    public terrain: Terrain
+    public entitySystem: EntitySystem
+    public renderDistance: number
 
     constructor(chunkFactory: ChunkFactory, entitySystem: EntitySystem) {
         this.entitySystem = entitySystem

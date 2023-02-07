@@ -15,14 +15,19 @@ import { Chunk } from '../world/chunk'
 import { Entity } from './entity'
 
 class FallingBlock extends Entity {
+    public static acceleration = 20
+
+    public entityID: number = Entity.count++
+    public itemID: number
+    public chunk: Chunk
+
     private x: number
     private y: number
     private z: number
 
-    entityID: number = Entity.count++
-    static acceleration = 20
-    itemID: number
-    chunk: Chunk
+    private position: Vector3 = new Vector3()
+    private velocity: Vector3 = new Vector3()
+
     constructor(x: number, y: number, z: number, chunk: Chunk, itemID: number = 1) {
         super('falling_block')
         this.x = x

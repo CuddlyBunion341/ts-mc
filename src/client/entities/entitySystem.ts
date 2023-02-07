@@ -2,8 +2,8 @@ import { Object3D } from 'three'
 import { Entity } from './entity'
 
 class EntitySystem {
-    entities: Entity[]
-    parent: Object3D
+    public entities: Entity[]
+    public parent: Object3D
 
     constructor(parent: Object3D) {
         this.parent = parent

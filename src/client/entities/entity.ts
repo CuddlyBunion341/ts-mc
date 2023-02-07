@@ -1,25 +1,23 @@
-import { Mesh, Vector3 } from 'three'
+import { Mesh } from 'three'
 
 import { v4 as uuid4 } from 'uuid'
 import { WorldCollider } from '../world/terrain'
 import { EntitySystem } from './entitySystem'
 
 abstract class Entity {
-    static count: number
-    uuid: string
-    position: Vector3
-    velocity: Vector3
-    name: string
-    mesh: Mesh | undefined
-    alive: boolean
-    entitySystem!: EntitySystem
-    worldCollider: WorldCollider | null
+    public static count: number
+
+    public uuid: string
+    public name: string
+    public mesh: Mesh | undefined
+    public alive: boolean
+    public worldCollider: WorldCollider | null
+
+    public entitySystem!: EntitySystem
 
     constructor(name: string) {
         this.name = name
         this.uuid = uuid4()
-        this.position = new Vector3()
-        this.velocity = new Vector3()
         this.alive = true
         this.worldCollider = null
     }

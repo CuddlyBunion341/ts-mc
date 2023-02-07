@@ -34,12 +34,13 @@ function createFractalNoise2D(
 }
 
 class TerrainGenerator {
-    seed: number
-    noise: NoiseFunction2D
-    hilliness = 10
-    spread = 64
-    minHeight = 65
-    seaLevel = 65
+    public seed: number
+    public hilliness = 10
+    public spread = 64
+    public minHeight = 65
+    public seaLevel = 65
+
+    private noise: NoiseFunction2D
 
     constructor(seed: number = 69420) {
         this.seed = seed

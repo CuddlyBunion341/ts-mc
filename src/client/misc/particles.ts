@@ -13,11 +13,13 @@ import {
 import { Atlas, AtlasRange, AtlasRanges } from '../blocks/atlas'
 
 class Particle {
-    mesh: Mesh
-    velocity: Vector3
-    age: number
-    alive: boolean
-    static material: Material
+    public static material: Material
+
+    public mesh: Mesh
+    public velocity: Vector3
+    public age: number
+    public alive: boolean
+
     constructor(x: number, y: number, z: number, range: AtlasRange) {
         this.age = 0
         this.velocity = new Vector3(Math.random() * 5 - 2.5, 0, Math.random() * 5 - 2.5)

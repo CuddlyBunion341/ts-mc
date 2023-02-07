@@ -26,7 +26,7 @@ scene.add(groups.entity)
 
 // init physics world
 const physicsWorld = new CANNON.World()
-physicsWorld.gravity.set(0, -1, 0) // -9.82 m/s²
+physicsWorld.gravity.set(0, -9.82, 0) // -9.82 m/s²
 
 const cannonDebugger = CannonDebugger(scene, physicsWorld, {
     color: 0xff00ff,

@@ -8,12 +8,12 @@ interface ControllerState {
 }
 
 class InputController {
-    private events: Record<string, Function[]>
+    public current: ControllerState
+    public previous: ControllerState
+    public keys: Record<string, boolean>
+    public previousKeys: Record<string, boolean>
 
-    current: ControllerState
-    previous: ControllerState
-    keys: Record<string, boolean>
-    previousKeys: Record<string, boolean>
+    private events: Record<string, Function[]>
 
     constructor() {
         this.current = {

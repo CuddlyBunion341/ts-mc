@@ -19,18 +19,19 @@ const blockSounds = <const>['none', 'cloth', 'grass', 'gravel', 'sand', 'snow', 
 type BlockSound = typeof blockSounds[number]
 
 class Block {
-    id: number
-    name: string
-    displayName: string
-    hardness: number
-    drops: BlockDrop[]
-    transparent: boolean
-    hasGravity: boolean
-    soundGroup: BlockSound
-    isSolid: boolean
+    public static blockCount = 0
 
-    static blockCount = 0
-    model: BlockModel
+    public id: number
+    public name: string
+    public displayName: string
+    public hardness: number
+    public drops: BlockDrop[]
+    public transparent: boolean
+    public hasGravity: boolean
+    public soundGroup: BlockSound
+    public isSolid: boolean
+
+    public model: BlockModel
 
     constructor(
         name: string,
@@ -56,8 +57,9 @@ class Block {
 // ---- Block Models ---------------------------------------------------------------------
 
 class BlockModel {
-    solidSides: boolean[]
-    elements: ModelElement[]
+    public solidSides: boolean[]
+    public elements: ModelElement[]
+
     constructor(elements: ModelElement[], solidSides: boolean[]) {
         this.solidSides = solidSides
         this.elements = elements
@@ -71,9 +73,10 @@ class EmptyModel extends BlockModel {
 }
 
 class ModelElement {
-    pos: ElementPosition
-    dim: ElementDimensions
-    textures: string[]
+    public pos: ElementPosition
+    public dim: ElementDimensions
+    public textures: string[]
+
     constructor(pos: ElementPosition, dim: ElementDimensions, textures: string[]) {
         this.pos = pos
         this.dim = dim

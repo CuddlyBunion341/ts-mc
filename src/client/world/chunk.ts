@@ -18,14 +18,13 @@ interface ChunkOptions {
 }
 
 class Chunk {
-    x: number
-    z: number
-    subchunks: number[][]
-    meshes: Mesh[]
-    neighbors!: Chunk[]
-    isModified: boolean
-    addEntity: (entity: Entity) => void
-    physicsBody: CANNON.Body
+    public x: number
+    public z: number
+    public subchunks: number[][]
+    public meshes: Mesh[]
+    public neighbors!: Chunk[]
+    public isModified: boolean
+    public addEntity: (entity: Entity) => void
 
     // set by factory
     private parentGroup: Group
@@ -45,19 +44,14 @@ class Chunk {
         this.atlasRanges = options.ranges
         this.parentGroup = options.parentGroup
         this.addEntity = options.addEntity
-        this.physicsBody = new CANNON.Body({
-            mass: 0,
-            position: new CANNON.Vec3(x * 16 + 8, 0, z * 16 + 8),
-        })
-        physicsWorld.addBody(this.physicsBody)
     }
 
     get(x: number, y: number, z: number): number {
         if (y < 0 || y > 255) return 0
-        if (x == -1) return this.neighbors[3].get(16 + x, y, z)
-        if (x == 16) return this.neighbors[2].get(16 - x, y, z)
-        if (z == -1) return this.neighbors[1].get(x, y, 16 + z)
-        if (z == 16) return this.neighbors[0].get(x, y, 16 - z)
+        if (x <= -1) return this.neighbors[3].get(16 + x, y, z)
+        if (x >= 16) return this.neighbors[2].get(16 - x, y, z)
+        if (z <= -1) return this.neighbors[1].get(x, y, 16 + z)
+        if (z >= 16) return this.neighbors[0].get(x, y, 16 - z)
 
         const sy = Math.floor(y / 16)
         if (!this.subchunks[sy]) return 0
@@ -260,8 +254,6 @@ class Chunk {
             mesh.removeFromParent()
             mesh.geometry.dispose()
         }
-        // remove cannon js bodies
-        this.physicsBody?.world?.removeBody(this.physicsBody)
     }
 }
 

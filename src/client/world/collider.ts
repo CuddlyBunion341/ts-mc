@@ -17,24 +17,30 @@ class WorldCollider {
     }
 
     move(x: number, y: number, z: number) {
+        ;[x, y, z] = [x, y, z].map(Math.floor)
         this.position.set(x, y, z)
         this.update()
     }
 
     update() {
-        // this.bodies.forEach((body) => physicsWorld.removeBody(body))
-        this.bodies = []
+        this.destroy()
 
         const { x, y, z } = this.position
+        const [_x, _y, _z] = [x, y, z].map(Math.floor)
 
-        const chunk = this.terrain.getChunkFromBlock(x, z)
+        const chunk = this.terrain.getChunkFromBlock(_x, _z)
         if (!chunk) return
 
-        chunk.getCollider(x, y, z, 5).forEach((body) => {
-            physicsWorld.addBody(body)
+        const bodies = chunk.getCollider(_x % 16, _y, _z % 16, this.radius)
 
+        for (const body of bodies) {
+            physicsWorld.addBody(body)
             this.bodies.push(body)
-        })
+        }
+    }
+
+    get size() {
+        return this.bodies.length
     }
 
     destroy() {

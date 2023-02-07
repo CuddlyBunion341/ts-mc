@@ -5,8 +5,10 @@ function inRange(v: number, a: number, b: number) {
 }
 
 class AABB {
-    position: Vector3
-    dimensions: Vector3
+    // TODO: DESTROY THIS CLASS
+    public position: Vector3
+    public dimensions: Vector3
+
     constructor(x: number, y: number, z: number, dx: number, dy: number, dz: number) {
         this.position = new Vector3(x, y, z)
         this.dimensions = new Vector3(dx, dy, dz)

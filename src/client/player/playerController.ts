@@ -1,6 +1,7 @@
-import { Camera } from 'three'
+import { Camera, Vector3 } from 'three'
 import { PlayerEntity } from './playerEntity'
 import { InputController } from './inputController'
+import { vector3ToVec3 } from '../misc/vectors'
 
 class PlayerController {
     private input: InputController
@@ -21,7 +22,10 @@ class PlayerController {
     update(delta: number) {
         this.input.update()
 
-        this.camera.getWorldDirection(this.entity.rotation)
+        const rotVec = new Vector3()
+        this.camera.getWorldDirection(rotVec)
+        this.entity.rotation = vector3ToVec3(rotVec)
+
         this.entity.rotation.y = 0
         this.entity.rotation.normalize()
 
