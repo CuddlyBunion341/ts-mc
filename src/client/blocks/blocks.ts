@@ -1,170 +1,225 @@
-interface BlockDrop {
-    probability: number
-    itemID: number
+import { BlockModelTemplates } from './models/template'
+import * as StateProperty from './state/types'
+import { BlockDrop, BlockSound } from './types'
+
+type ValidBlockState = {
+    axis?: StateProperty.Axis
+    facing?: StateProperty.Facing
+    half?: StateProperty.Half
+    shape?: StateProperty.Shape
 }
 
-interface ElementPosition {
-    x: number
-    y: number
-    z: number
-}
-interface ElementDimensions {
-    w: number
-    h: number
-    d: number
+type BlockVariantProperties = {
+    hardness?: number
+    drops?: BlockDrop[]
+    transparent?: boolean
+    hasGravity?: boolean
+    isSolid?: boolean
+    soundGroup?: BlockSound
+    model?: BlockModel
 }
 
-const blockSounds = <const>['none', 'cloth', 'grass', 'gravel', 'sand', 'snow', 'stone', 'wood']
+class BlockVariant {
+    public parent: Block
 
-type BlockSound = typeof blockSounds[number]
+    private hardness?: number
+    private drops?: BlockDrop[]
+    private transparent?: boolean
+    private hasGravity?: boolean
+    private isSolid?: boolean
+    private soundGroup?: BlockSound
+    private model?: BlockModel
+
+    constructor(parent: Block) {
+        this.parent = parent
+    }
+
+    set(property: keyof BlockVariantProperties, value: any) {
+        this[property] = value
+    }
+
+    get(property: keyof BlockVariantProperties) {
+        return this[property] ?? this.parent[property]
+    }
+}
+
+class BlockState extends BlockVariant {
+    public static count = 0
+    public static list = new Map<number, BlockState>()
+    public static get(id: number) {
+        return BlockState.list.get(id)
+    }
+
+    public id: number = ++BlockState.count
+    public values: { [key: string]: any }
+
+    constructor(parent: Block, values: ValidBlockState) {
+        super(parent)
+        this.values = values
+        BlockState.list.set(this.id, this)
+    }
+
+    toString() {
+        let values = ''
+        for (let key in this.values) {
+            values += `${key}=${this.values[key]}`
+        }
+        return values
+    }
+}
 
 class Block {
-    public static blockCount = 0
+    public static count = 0
 
-    public id: number
+    public id: number = ++Block.count
     public name: string
     public displayName: string
-    public hardness: number
-    public drops: BlockDrop[]
-    public transparent: boolean
-    public hasGravity: boolean
-    public soundGroup: BlockSound
-    public isSolid: boolean
-
+    public hardness: number = 1
+    public drops: BlockDrop[] = [{ itemID: this.id, probability: 1 }]
+    public transparent: boolean = false
+    public hasGravity: boolean = false
+    public isSolid: boolean = true
+    public soundGroup: BlockSound = 'stone'
     public model: BlockModel
 
-    constructor(
-        name: string,
-        soundGroup: BlockSound,
-        hardness: number,
-        model: BlockModel,
-        transparent = false,
-        solid = true
-    ) {
-        this.id = Block.blockCount++
-        this.drops = [{ itemID: this.id, probability: 1 }]
+    public validStates: { [key: string]: any[] }
+    public states: BlockState[]
+    public defaultStateIndex: number = 0
+    public get defaultState() {
+        return this.states[this.defaultStateIndex]
+    }
+
+    constructor(name: string) {
         this.displayName = name
         this.name = name.toLowerCase().replace(' ', '_')
-        this.hardness = hardness
-        this.model = model
-        this.transparent = transparent
-        this.hasGravity = false
-        this.soundGroup = soundGroup
-        this.isSolid = solid
+
+        this.validStates = {}
+        this.model = new BlockModel([])
+        this.states = [new BlockState(this, {})]
     }
 }
 
-// ---- Block Models ---------------------------------------------------------------------
+class BlockBuilder {
+    private block: Block
 
-class BlockModel {
-    public solidSides: boolean[]
-    public elements: ModelElement[]
+    public static named(name: string) {
+        return new BlockBuilder(name)
+    }
 
-    constructor(elements: ModelElement[], solidSides: boolean[]) {
-        this.solidSides = solidSides
-        this.elements = elements
+    constructor(name: string) {
+        this.block = new Block(name)
+    }
+
+    public hardness(hardness: number) {
+        this.block.hardness = hardness
+        return this
+    }
+
+    public transparent(transparent: boolean) {
+        this.block.transparent = transparent
+        return this
+    }
+
+    public gravity(gravity: boolean) {
+        this.block.hasGravity = gravity
+        return this
+    }
+
+    public soundgroup(soundGroup: BlockSound) {
+        this.block.soundGroup = soundGroup
+        return this
+    }
+
+    public solid(solid: boolean) {
+        this.block.isSolid = solid
+        return this
+    }
+
+    public addState(values: ValidBlockState, callback?: (state: BlockState) => void) {
+        const state = new BlockState(this.block, values)
+        this.block.states.push(state)
+        return this
+    }
+
+    public build(): Block {
+        return this.block
     }
 }
 
-class EmptyModel extends BlockModel {
-    constructor() {
-        super([], Array(6).fill(false))
+const Hardness = {
+    Dirt: 1.5,
+    Sand: 1.5,
+    Glass: 5,
+    Rock: 10,
+    Wood: 2,
+    Leaves: 0.1,
+    Unbreakable: -1,
+}
+
+// shorthand
+const _ = BlockBuilder.named
+const Templates = BlockModelTemplates
+
+class Blocks {
+    public static list: Block[] = [
+        _('Air').solid(false).build(),
+        _('Stone').hardness(Hardness.Rock).build(),
+        _('Grass Block').hardness(Hardness.Dirt).build(),
+        _('Dirt').hardness(Hardness.Dirt).build(),
+        _('Cobblestone').hardness(Hardness.Rock).build(),
+        _('Oak Planks').hardness(Hardness.Wood).build(),
+        _('Oak Leaves').hardness(Hardness.Leaves).build(),
+        _('Bedrock').hardness(Hardness.Unbreakable).build(),
+        _('Sand').hardness(Hardness.Sand).gravity(true).build(),
+        _('Water').solid(false).build(),
+        _('Glass').build(),
+        _('Stone Slab')
+            .addState({ half: 'bottom' }, (s) => {
+                s.set('model', Templates.slabBottom.clone().setTextures({ all: 'stone' }))
+            })
+            .addState({ half: 'top' }, (s) => {
+                s.set('model', Templates.slabTop.clone().setTextures({ all: 'stone' }))
+            })
+            .build(),
+        _('Oak Log')
+            .hardness(Hardness.Wood)
+            .addState({ axis: 'y' }, (s) => {
+                s.set(
+                    'model',
+                    Templates.pillarY.clone().setTextures({ side: 'oak_log', end: 'oak_log_top' })
+                )
+            })
+            .addState({ axis: 'x' }, (s) => {
+                s.set(
+                    'model',
+                    Templates.pillarX.clone().setTextures({ side: 'oak_log', end: 'oak_log_top' })
+                )
+            })
+            .addState({ axis: 'z' }, (s) => {
+                s.set(
+                    'model',
+                    Templates.pillarZ.clone().setTextures({ side: 'oak_log', end: 'oak_log_top' })
+                )
+            })
+            .build(),
+    ]
+
+    public static fromString(data: string) {
+        const regex = /^(\w+)(?:\[(\w+=\w+(?:,\w+=\w+)*)\])?$/g
+        if (regex.test(data)) throw new Error('Invalid block string')
+
+        const matches = regex.exec(data)
+        if (matches === null) throw new Error('Error parsing block string')
+
+        const name = matches[1]
+        const states = matches[2]
+
+        const block = this.list.find((b) => b.name === name)
+        if (block === undefined) throw new Error('Block not found')
+
+        const blockStates = block.states
+        if (states === undefined) return block
     }
 }
-
-class ModelElement {
-    public pos: ElementPosition
-    public dim: ElementDimensions
-    public textures: string[]
-
-    constructor(pos: ElementPosition, dim: ElementDimensions, textures: string[]) {
-        this.pos = pos
-        this.dim = dim
-        this.textures = textures
-    }
-}
-
-class CubeModel extends BlockModel {
-    constructor(
-        front: string,
-        right: string,
-        back: string,
-        left: string,
-        top: string,
-        bottom: string
-    ) {
-        const textures = [front, right, back, left, top, bottom]
-        const [x, y, z] = [0, 0, 0]
-        const [w, h, d] = [16, 16, 16]
-        const faces = Array(6).fill(true)
-        super([new ModelElement({ x, y, z }, { w, h, d }, textures)], faces)
-    }
-}
-
-class TopSideBottomModel extends CubeModel {
-    constructor(top: string, side: string, bottom: string) {
-        super(side, side, side, side, top, bottom)
-    }
-}
-class TopSideModel extends TopSideBottomModel {
-    constructor(top: string, side: string) {
-        super(top, side, top)
-    }
-}
-class CubeAllModel extends TopSideModel {
-    constructor(texture: string) {
-        super(texture, texture)
-    }
-}
-
-// ---- Blocks ---------------------------------------------------------------------------
-
-const blocks: Block[] = [
-    new Block('Air', 'none', 0, new EmptyModel(), true, false),
-    new Block('Stone', 'stone', 10, new CubeAllModel('stone')),
-    new Block(
-        'Grass Block',
-        'grass',
-        0.6,
-        new TopSideBottomModel('grass_top', 'grass_side', 'dirt')
-    ),
-    new Block('Dirt', 'gravel', 0.5, new CubeAllModel('dirt')),
-    new Block('Cobblestone', 'stone', 10, new CubeAllModel('cobblestone')),
-    new Block('Oak Planks', 'wood', 2, new CubeAllModel('oak_planks')),
-    new Block('Oak Log', 'wood', 2, new TopSideModel('oak_log_top', 'oak_log')),
-    new Block('Oak Leaves', 'grass', 0.1, new CubeAllModel('oak_leaves'), false),
-    new Block('Bedrock', 'stone', 100, new CubeAllModel('bedrock')),
-    new Block('Sand', 'sand', 0.5, new CubeAllModel('sand')),
-    new Block('Water', 'none', 100, new CubeAllModel('water'), true, false),
-    new Block('Glass', 'stone', 0.3, new CubeAllModel('glass'), true),
-]
-
-const textures: string[] = []
-for (const block of blocks) {
-    const elements = block.model.elements
-    for (const element of elements) {
-        for (const texture of element.textures) {
-            if (!textures.includes(texture)) textures.push(texture)
-        }
-    }
-}
-
-const blockIDs = new Map()
-
-for (const block of blocks) {
-    blockIDs.set(block.name, block.id)
-}
-
-function setDrop(name: string, drop: string) {
-    const blockID = blockIDs.get(name)
-    const dropID = blockIDs.get(drop)
-
-    blocks[blockID].drops = [{ itemID: dropID, probability: 1 }]
-}
-
-setDrop('grass_block', 'dirt')
-setDrop('stone', 'cobblestone')
-
-blocks[blockIDs.get('sand')].hasGravity = true
 
 export { blocks, textures, blockIDs, blockSounds, BlockSound }
