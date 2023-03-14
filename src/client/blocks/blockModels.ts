@@ -1,55 +1,80 @@
-type ElementPosition = {
-    x: number
-    y: number
-    z: number
-}
-type ElementDimensions = {
-    w: number
-    h: number
-    d: number
-}
+import { FixedSizeArray } from '../../util/types'
+import GeometryBuilder, { FaceIndex, Vertex } from './models/builder'
+import { CompiledElement, CompiledModel, ElementPosition, FaceName } from './models/types'
 
 class BlockModel {
-    public solidSides: boolean[] = Array(6).fill(true)
+    public solidSides: FixedSizeArray<6, boolean> = Array(6).fill(true)
     public elements: ModelElement[] = []
+    public transparent = false
 
-    constructor(elements: ModelElement[], solidSides?: boolean[]) {
+    public static compile(model: BlockModel): CompiledModel {
+        const vertices: Record<string, any[]> = {}
+        for (let i = 0; i < model.elements.length; i++) {
+            const element = model.elements[i]
+
+            const compiledElement = element.compile()
+            let face: keyof CompiledElement['vertices']
+            for (face in compiledElement.vertices) {
+                if (!vertices[face]) vertices[face] = []
+                vertices[face].push(...compiledElement.vertices[face])
+            }
+        }
+
+        return {
+            vertices,
+            culling: model.solidSides,
+            transparent: model.transparent,
+        }
+    }
+
+    private _compiledModel?: CompiledModel
+
+    constructor(elements: ModelElement[], solidSides?: FixedSizeArray<6, boolean>) {
         this.elements = elements
         if (solidSides) this.solidSides = solidSides
     }
 
     public clone() {
-        return new BlockModel(this.elements, this.solidSides)
+        const model = new BlockModel([])
+        const elements = []
+        for (let i = 0; i < this.elements.length; i++) {
+            elements.push(this.elements[i].clone())
+        }
+        model.elements = elements
+        model.solidSides = this.solidSides
+        model.transparent = this.transparent
+        return model
     }
 
     public setTextures(textures: { [key: string]: string }) {
         this.elements.forEach((element) => {
             let face: keyof ModelElement['faces']
             for (face in element.faces) {
-                if (element.faces[face].texture in textures) {
-                    element.faces[face].texture = textures[element.faces[face].texture]
-                }
+                // todo: implement
             }
         })
         return this
     }
-}
 
-class EmptyModel extends BlockModel {
-    constructor() {
-        super([], Array(6).fill(false))
+    public compileModel(force = false) {
+        if (this._compiledModel && !force) return
+        this._compiledModel = BlockModel.compile(this)
+    }
+
+    public get compiledModel() {
+        this.compileModel()
+        return this._compiledModel
     }
 }
 
-type ModelPosition = [number, number, number]
 class ModelFace {
-    texture: string = 'undefined'
+    texture: string | null = 'undefined'
     uv: [number, number, number, number] = [0, 0, 16, 16]
     rotation: number = 0
 
     constructor() {}
 
-    setTexture(texture: string) {
+    setTexture(texture: string | null) {
         this.texture = texture
         return this
     }
@@ -63,55 +88,124 @@ class ModelFace {
         this.rotation = rotation
         return this
     }
+
+    clone() {
+        const face = new ModelFace()
+        face.texture = this.texture
+        face.uv = [...this.uv]
+        face.rotation = this.rotation
+        return face
+    }
 }
 
 class ModelElement {
-    public from: ModelPosition = [0, 0, 0]
-    public to: ModelPosition = [16, 16, 16]
-    public faces: {
-        north?: ModelFace
-        east?: ModelFace
-        south?: ModelFace
-        west?: ModelFace
-        up?: ModelFace
-        down?: ModelFace
-    } = (() => {
-        let faces = ['north', 'east', 'south', 'west', 'up', 'down']
-        let dict = {}
-
-        for (let i = 0; i < 6; i++) {
-            dict[faces[i]] = new ModelFace().setTexture(`#${i}`)
-        }
-        return {
-            north: new ModelFace().setTexture('#0'),
-            east: new ModelFace().setTexture('#1'),
-            south: new ModelFace().setTexture('#2'),
-            west: new ModelFace().setTexture('#3'),
-            up: new ModelFace().setTexture('#4'),
-            down: new ModelFace().setTexture('#5'),
-        }
-    })()
+    public from: ElementPosition = [0, 0, 0]
+    public to: ElementPosition = [16, 16, 16]
+    public faces: Record<FaceName, ModelFace | null> = {
+        north: new ModelFace(),
+        east: new ModelFace(),
+        south: new ModelFace(),
+        west: new ModelFace(),
+        up: new ModelFace(),
+        down: new ModelFace(),
+    }
 
     public shade?: boolean = true
 
     constructor() {}
+
     public setFace(
         face: 'north' | 'east' | 'south' | 'west' | 'up' | 'down',
-        texture: string,
+        texture: string | null,
         uv?: [number, number, number, number]
     ) {
+        if (texture == null) {
+            delete this.faces[face]
+            return this
+        }
+
         this.faces[face] = new ModelFace().setTexture(texture)
-        if (uv) this.faces[face]?.withUV(uv)
+        if (uv) this.faces[face]?.setUV(uv)
         return this
     }
 
-    public setFrom(from: ModelPosition) {
+    public setFrom(from: ElementPosition) {
         this.from = from
         return this
     }
 
-    public setTo(to: ModelPosition) {
+    public setTo(to: ElementPosition) {
         this.to = to
         return this
     }
+
+    public clone() {
+        const element = new ModelElement()
+        element.from = [...this.from]
+        element.to = [...this.to]
+        element.shade = this.shade
+
+        const faces: Record<FaceName, ModelFace | null> = {
+            north: null,
+            east: null,
+            south: null,
+            west: null,
+            up: null,
+            down: null,
+        }
+
+        let face: keyof ModelElement['faces']
+
+        for (face in this.faces) {
+            if (this.faces[face] == null) {
+                faces[face] = null
+                continue
+            }
+            faces[face] = this.faces[face]!.clone()
+        }
+
+        return element
+    }
+
+    public compile(): CompiledElement {
+        const [x1, y1, z1] = this.from.map((v) => v / 16)
+        const [x2, y2, z2] = this.to.map((v) => v / 16)
+
+        const dx = x2 - x1
+        const dy = y2 - y1
+        const dz = z2 - z1
+
+        const getVertices = (faceIndex: FaceIndex) => {
+            const face = GeometryBuilder.getFace(faceIndex)
+            const vertices: Vertex[] = []
+
+            for (let i = 0; i < 6; i++) {
+                const vertex = face[i]
+                const [x, y, z] = vertex.pos
+                const [u, v] = vertex.uv
+                const [nx, ny, nz] = vertex.norm
+
+                vertices.push({
+                    pos: [x * dx + x1, y * dy + y1, z * dz + z1],
+                    uv: [u, v],
+                    norm: [nx, ny, nz],
+                    shade: this.shade ? vertex.shade : 1,
+                })
+            }
+            return vertices
+        }
+
+        return {
+            vertices: {
+                north: getVertices(FaceIndex.Front),
+                east: getVertices(FaceIndex.Right),
+                south: getVertices(FaceIndex.Back),
+                west: getVertices(FaceIndex.Left),
+                up: getVertices(FaceIndex.Top),
+                down: getVertices(FaceIndex.Bottom),
+            },
+        }
+    }
 }
+
+export { BlockModel, ModelElement, ModelFace }

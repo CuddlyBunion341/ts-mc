@@ -1,8 +1,16 @@
+import { FixedSizeArray } from '../../../util/types'
+import { Vertex } from './builder'
+
+type ElementPosition = [number, number, number]
+
+type CompiledElement = {
+    vertices: Record<FaceName, Vertex[]>
+}
+
 type CompiledModel = {
-    culling: FixedSizeArray<boolean, 6>
-    faces: [Face[], Face[], Face[], Face[], Face[], Face[]]
+    culling: FixedSizeArray<6, boolean>
     transparent: boolean
-    shady: boolean
+    vertices: Record<FaceName, Vertex[]>
 }
 
 type FaceName = 'north' | 'south' | 'west' | 'east' | 'up' | 'down'
@@ -17,3 +25,14 @@ type Element = {
 
 type RotationAxis = 'x' | 'y' | 'z'
 type RotationAngle = 0 | 90 | 180 | 270
+
+export {
+    ElementPosition,
+    CompiledModel,
+    FaceName,
+    Face,
+    Element,
+    RotationAxis,
+    RotationAngle,
+    CompiledElement,
+}
